@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Analytics Dashboard - Admin</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body class="admin-theme">
+<div class="admin-container">
+  <header class="analytics-header">
+    <nav class="breadcrumb">
+      <a href="/admin">← Back to Admin Dashboard</a>
+    </nav>
+    <h1>📊 Analytics Dashboard</h1>
+    <p class="analytics-subtitle">Real-time user behavior and platform metrics</p>
+  </header>
+
+  <!-- Key Metrics Overview -->
+  <section class="metrics-overview">
+    <div class="metric-card primary">
+      <div class="metric-icon">👥</div>
+      <div class="metric-content">
+        <div class="metric-value" th:text="${overview.dau}">156</div>
+        <div class="metric-label">Daily Active Users</div>
+        <div class="metric-change positive" th:text="${overview.userGrowthRate}">+12.3%</div>
+      </div>
+    </div>
+    
+    <div class="metric-card secondary">
+      <div class="metric-icon">📈</div>
+      <div class="metric-content">
+        <div class="metric-value" th:text="${overview.mau}">1,247</div>
+        <div class="metric-label">Monthly Active Users</div>
+        <div class="metric-change positive" th:text="${overview.userGrowthRate}">+12.3%</div>
+      </div>
+    </div>
+    
+    <div class="metric-card tertiary">
+      <div class="metric-icon">⏱️</div>
+      <div class="metric-content">
+        <div class="metric-value" th:text="${overview.avgSessionDuration}">4m 32s</div>
+        <div class="metric-label">Avg Session Duration</div>
+        <div class="metric-change positive">+8.2%</div>
+      </div>
+    </div>
+    
+    <div class="metric-card quaternary">
+      <div class="metric-icon">📄</div>
+      <div class="metric-content">
+        <div class="metric-value" th:text="${overview.pagesPerSession}">3.2</div>
+        <div class="metric-label">Pages per Session</div>
+        <div class="metric-change positive">+5.1%</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Charts and Data Grid -->
+  <div class="analytics-grid">
+    <!-- User Events Table -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>🔍 Recent User Events</h3>
+        <div class="card-actions">
+          <button class="btn btn-sm">Export</button>
+          <button class="btn btn-sm">Filter</button>
+        </div>
+      </div>
+      <div class="events-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Event Type</th>
+              <th>User</th>
+              <th>Location</th>
+              <th>Device</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="event : ${userEvents}">
+              <td>
+                <span class="event-badge" th:text="${event.eventType}">Page View</span>
+              </td>
+              <td th:text="${event.user}">Jordan Lee</td>
+              <td>
+                <span class="location">📍</span>
+                <span th:text="${event.location}">San Francisco, CA</span>
+              </td>
+              <td>
+                <span class="device-badge" th:text="${event.device}">Mobile</span>
+              </td>
+              <td th:text="${event.timestamp}">2024-01-15 14:30:25</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Singapore Community Locations -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>🇸🇬 Singapore Communities</h3>
+        <div class="card-actions">
+          <button class="btn btn-sm">View Map</button>
+        </div>
+      </div>
+      <div class="location-list">
+        <div th:each="location : ${locationData}" class="location-item">
+          <div class="location-info">
+            <span class="location-name" th:text="${location.key}">Marina Bay Community</span>
+            <span class="location-count" th:text="${location.value}">234</span>
+          </div>
+          <div class="location-bar">
+            <div class="location-fill" th:style="'width: ' + ${location.value * 100 / 234} + '%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Device Analytics -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>📱 Device Breakdown</h3>
+      </div>
+      <div class="device-chart">
+        <div th:each="device : ${deviceData}" class="device-item">
+          <div class="device-info">
+            <span class="device-name" th:text="${device.key}">Mobile</span>
+            <span class="device-count" th:text="${device.value}">1,247</span>
+          </div>
+          <div class="device-bar">
+            <div class="device-fill" th:style="'width: ' + ${device.value * 100 / 1247} + '%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Event Types -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>📊 Event Types</h3>
+      </div>
+      <div class="event-types">
+        <div th:each="eventType : ${eventTypes}" class="event-type-item">
+          <div class="event-type-info">
+            <span class="event-type-name" th:text="${eventType.key}">Page View</span>
+            <span class="event-type-count" th:text="${eventType.value}">3,456</span>
+          </div>
+          <div class="event-type-bar">
+            <div class="event-type-fill" th:style="'width: ' + ${eventType.value * 100 / 3456} + '%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Pages -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>🔥 Top Pages</h3>
+      </div>
+      <div class="top-pages">
+        <div th:each="page : ${topPages}" class="page-item">
+          <div class="page-info">
+            <div class="page-name" th:text="${page.pageName}">Pregnancy Nutrition Community</div>
+            <div class="page-url" th:text="${page.url}">/community/c1</div>
+          </div>
+          <div class="page-stats">
+            <div class="page-views" th:text="${page.views}">1,234</div>
+            <div class="page-time" th:text="${page.avgTime} + 'm'">4.2m</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Engagement Metrics -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>💬 Engagement Metrics</h3>
+      </div>
+      <div class="engagement-metrics">
+        <div class="engagement-item">
+          <div class="engagement-label">Total Posts</div>
+          <div class="engagement-value" th:text="${overview.totalPosts}">3</div>
+        </div>
+        <div class="engagement-item">
+          <div class="engagement-label">Total Comments</div>
+          <div class="engagement-value" th:text="${overview.totalComments}">24</div>
+        </div>
+        <div class="engagement-item">
+          <div class="engagement-label">Bounce Rate</div>
+          <div class="engagement-value" th:text="${overview.bounceRate}">23.4%</div>
+        </div>
+        <div class="engagement-item">
+          <div class="engagement-label">Communities</div>
+          <div class="engagement-value" th:text="${overview.totalCommunities}">6</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Traffic Sources Pie Chart -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>📊 Traffic Sources</h3>
+      </div>
+      <div class="pie-chart-container">
+        <div class="pie-chart">
+          <div class="pie-center">
+            <div class="pie-total">100%</div>
+            <div class="pie-subtitle">Total Traffic</div>
+          </div>
+        </div>
+        <div class="pie-legend">
+          <div class="legend-item">
+            <div class="legend-color direct"></div>
+            <div class="legend-label">Direct</div>
+            <div class="legend-value">45.2%</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color social"></div>
+            <div class="legend-label">Social Media</div>
+            <div class="legend-value">28.7%</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color search"></div>
+            <div class="legend-label">Search Engines</div>
+            <div class="legend-value">18.3%</div>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color referrals"></div>
+            <div class="legend-label">Referrals</div>
+            <div class="legend-value">7.8%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hourly Traffic Bar Chart -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>⏰ Hourly Traffic</h3>
+      </div>
+      <div class="bar-chart-container">
+        <div class="bar-chart">
+          <div th:each="hour : ${hourlyTraffic}" class="bar-item">
+            <div class="bar-label" th:text="${hour.key}">00:00</div>
+            <div class="bar-wrapper">
+              <div class="bar-fill" th:style="'height: ' + ${hour.value * 100 / 125} + '%'" th:data-value="${hour.value}"></div>
+            </div>
+            <div class="bar-value" th:text="${hour.value}">12</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Age Groups Distribution -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>👥 Age Groups</h3>
+      </div>
+      <div class="age-groups">
+        <div th:each="age : ${ageGroups}" class="age-group-item">
+          <div class="age-group-info">
+            <span class="age-group-name" th:text="${age.key}">18-24</span>
+            <span class="age-group-count" th:text="${age.value}">156</span>
+          </div>
+          <div class="age-group-bar">
+            <div class="age-group-fill" th:style="'width: ' + ${age.value * 100 / 423} + '%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gender Distribution -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>⚧ Gender Distribution</h3>
+      </div>
+      <div class="gender-chart">
+        <div th:each="gender : ${genderDistribution}" class="gender-item">
+          <div class="gender-info">
+            <span class="gender-name" th:text="${gender.key}">Female</span>
+            <span class="gender-count" th:text="${gender.value}">892</span>
+          </div>
+          <div class="gender-bar">
+            <div class="gender-fill" th:style="'width: ' + ${gender.value * 100 / 892} + '%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Referrers Table -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>🔗 Top Referrers</h3>
+      </div>
+      <div class="referrers-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Domain</th>
+              <th>Visits</th>
+              <th>Percentage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="referrer : ${topReferrers}">
+              <td th:text="${referrer.name}">Facebook</td>
+              <td th:text="${referrer.domain}">facebook.com</td>
+              <td th:text="${referrer.visits}">234</td>
+              <td>
+                <div class="percentage-bar">
+                  <div class="percentage-fill" th:style="'width: ' + ${referrer.percentage} + '%'" th:text="${referrer.percentage} + '%'">12.3%</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Session Duration -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>⏱️ Session Duration</h3>
+      </div>
+      <div class="session-duration">
+        <div th:each="duration : ${sessionDuration}" class="duration-item">
+          <div class="duration-info">
+            <span class="duration-name" th:text="${duration.key}">0-10 seconds</span>
+            <span class="duration-count" th:text="${duration.value}">234</span>
+          </div>
+          <div class="duration-bar">
+            <div class="duration-fill" th:style="'width: ' + ${duration.value * 100 / 892} + '%'"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Browser & OS Data -->
+    <div class="analytics-card">
+      <div class="card-header">
+        <h3>🌐 Browser & OS</h3>
+      </div>
+      <div class="browser-os-grid">
+        <div class="browser-section">
+          <h4>Browsers</h4>
+          <div class="browser-list">
+            <div th:each="browser : ${browserData}" class="browser-item">
+              <span class="browser-name" th:text="${browser.key}">Chrome</span>
+              <span class="browser-count" th:text="${browser.value}">1,247</span>
+            </div>
+          </div>
+        </div>
+        <div class="os-section">
+          <h4>Operating Systems</h4>
+          <div class="os-list">
+            <div th:each="os : ${operatingSystems}" class="os-item">
+              <span class="os-name" th:text="${os.key}">Android</span>
+              <span class="os-count" th:text="${os.value}">1,247</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

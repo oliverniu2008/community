@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Leader Dashboard - SuperM</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<h1>Leader Dashboard</h1>
+<section>
+  <h2>Metrics</h2>
+  <table>
+    <tr><th>Community</th><th>Members</th><th>Posts</th></tr>
+    <tr th:each="c : ${communities}">
+      <td th:text="${c.name}">Name</td>
+      <td th:text="${c.memberCount}">0</td>
+      <td th:text="${engagement[c.id]}">0</td>
+    </tr>
+  </table>
+</section>
+<section>
+  <h2>Tools</h2>
+  <button>Create a New Post</button>
+  <button>Pin a Post</button>
+  <button>Manage Members</button>
+</section>
+</body>
+</html>

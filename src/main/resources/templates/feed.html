@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Your Feed - SuperM</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<header class="topbar">
+  <a href="/">Home</a>
+  <a href="/onboarding">Discover New Communities</a>
+  <button>Create Post</button>
+</header>
+<aside class="sidebar">
+  <h3>Joined Communities</h3>
+  <ul>
+    <li th:each="c : ${communities}"><a th:href="@{'/community/' + ${c.id}}" th:text="${c.name}">Community</a></li>
+  </ul>
+</aside>
+<main class="feed">
+  <article class="post" th:each="p : ${posts}">
+    <div class="avatar">👤</div>
+    <div class="content">
+      <div class="meta"><span th:text="${p.authorName}">Author</span> · <span th:text="${p.createdAt}">time</span></div>
+      <p th:text="${p.content}">content</p>
+      <div class="actions">
+        <button>Like (<span th:text="${p.likes}">0</span>)</button>
+        <button>Comment (<span th:text="${p.comments}">0</span>)</button>
+        <button>Share</button>
+      </div>
+    </div>
+  </article>
+</main>
+</body>
+</html>

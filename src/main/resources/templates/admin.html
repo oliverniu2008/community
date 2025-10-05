@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Admin Dashboard - SuperM</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body class="admin-theme">
+<div class="admin-container">
+  <header class="admin-header">
+    <h1>Admin Dashboard</h1>
+    <nav class="admin-nav">
+      <a href="/admin/users" class="nav-tab">
+        <span class="nav-icon">👥</span>
+        <span class="nav-text">Users</span>
+      </a>
+      <a href="/admin/communities" class="nav-tab">
+        <span class="nav-icon">🏘️</span>
+        <span class="nav-text">Communities</span>
+      </a>
+      <a href="/admin/leaders" class="nav-tab">
+        <span class="nav-icon">⭐</span>
+        <span class="nav-text">Leaders & Rewards</span>
+      </a>
+      <a href="/admin/moderation" class="nav-tab">
+        <span class="nav-icon">🛡️</span>
+        <span class="nav-text">Moderation</span>
+      </a>
+      <a href="/admin/analytics" class="nav-tab">
+        <span class="nav-icon">📊</span>
+        <span class="nav-text">Analytics</span>
+      </a>
+      <a href="/admin/content-generator" class="nav-tab">
+        <span class="nav-icon">🤖</span>
+        <span class="nav-text">Content Generator</span>
+      </a>
+    </nav>
+  </header>
+  
+  <section class="admin-stats">
+    <div class="stat-card">
+      <div class="stat-number" th:text="${totalUsers}">0</div>
+      <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" th:text="${totalCommunities}">0</div>
+      <div class="stat-label">Total Communities</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" th:text="${dailyActive}">0</div>
+      <div class="stat-label">Daily Active Users</div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>AI Content Generator - Admin</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body class="admin-theme">
+<div class="admin-container">
+  <header class="content-generator-header">
+    <nav class="breadcrumb">
+      <a href="/admin">← Back to Admin Dashboard</a>
+    </nav>
+    <h1>🤖 AI Content Generator</h1>
+    <p class="content-subtitle">Generate articles, videos, and photos with AI and post to social media</p>
+  </header>
+
+  <!-- Success Messages -->
+  <div th:if="${postedPlatforms}" class="success-message">
+    <div class="success-icon">✅</div>
+    <div class="success-content">
+      <h3>Content Posted Successfully!</h3>
+      <p>Your content has been posted to: <span th:text="${#strings.listJoin(postedPlatforms, ', ')}">Platform1, Platform2</span></p>
+    </div>
+  </div>
+
+  <!-- Error Messages -->
+  <div th:if="${error}" class="error-message">
+    <div class="error-icon">❌</div>
+    <div class="error-content">
+      <h3>Error</h3>
+      <p th:text="${error}">An error occurred</p>
+    </div>
+  </div>
+
+  <!-- Content Generation Form -->
+  <section class="content-generation-section">
+    <div class="generation-card">
+      <div class="card-header">
+        <h3>🎯 Generate New Content</h3>
+        <div class="ai-badge">Powered by AI</div>
+      </div>
+      
+      <form th:action="@{/admin/content-generator/generate}" method="post" class="generation-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="contentType">Content Type</label>
+            <select id="contentType" name="contentType" required>
+              <option value="">Select content type...</option>
+              <option value="article">📝 Article</option>
+              <option value="video">🎥 Video</option>
+              <option value="photo">📸 Photo</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="communityId">Target Community</label>
+            <select id="communityId" name="communityId" required>
+              <option value="">Select community...</option>
+              <option th:each="community : ${communities}" th:value="${community.id}" th:text="${community.name}">Community</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="aiTool">AI Tool</label>
+          <div class="ai-tools-grid">
+            <div class="ai-tool-option">
+              <input type="radio" id="chatgpt" name="aiTool" value="chatgpt" checked>
+              <label for="chatgpt" class="ai-tool-label">
+                <div class="ai-tool-icon">🤖</div>
+                <div class="ai-tool-info">
+                  <div class="ai-tool-name">ChatGPT</div>
+                  <div class="ai-tool-description">OpenAI's conversational AI</div>
+                </div>
+              </label>
+            </div>
+            
+            <div class="ai-tool-option">
+              <input type="radio" id="claude" name="aiTool" value="claude">
+              <label for="claude" class="ai-tool-label">
+                <div class="ai-tool-icon">🧠</div>
+                <div class="ai-tool-info">
+                  <div class="ai-tool-name">Claude</div>
+                  <div class="ai-tool-description">Anthropic's AI assistant</div>
+                </div>
+              </label>
+            </div>
+            
+            <div class="ai-tool-option">
+              <input type="radio" id="nano-banana" name="aiTool" value="nano-banana">
+              <label for="nano-banana" class="ai-tool-label">
+                <div class="ai-tool-icon">🍌</div>
+                <div class="ai-tool-info">
+                  <div class="ai-tool-name">Nano Banana</div>
+                  <div class="ai-tool-description">Lightweight AI model</div>
+                </div>
+              </label>
+            </div>
+            
+            <div class="ai-tool-option">
+              <input type="radio" id="sora" name="aiTool" value="sora">
+              <label for="sora" class="ai-tool-label">
+                <div class="ai-tool-icon">🎬</div>
+                <div class="ai-tool-info">
+                  <div class="ai-tool-name">Sora</div>
+                  <div class="ai-tool-description">OpenAI's video generation AI</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="topic">Topic/Theme</label>
+          <input type="text" id="topic" name="topic" placeholder="e.g., Sleep training tips, Morning routines, Parenting advice..." required>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="btn btn-generate">
+            <span class="btn-icon">✨</span>
+            Generate Content
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Generated Content Display -->
+  <div th:if="${generatedContent}" class="generated-content-section">
+    <div class="generated-card">
+      <div class="card-header">
+        <h3>🎉 Generated Content</h3>
+        <div class="content-type-badge" th:text="${generatedContent.type}">Article</div>
+      </div>
+      
+      <div class="generated-content">
+        <div class="content-meta">
+          <div class="meta-item">
+            <span class="meta-label">Title:</span>
+            <span class="meta-value" th:text="${generatedContent.title}">Generated Title</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Topic:</span>
+            <span class="meta-value" th:text="${generatedContent.topic}">Topic</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">AI Tool:</span>
+            <span class="meta-value" th:text="${generatedContent.aiTool}">ChatGPT</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Generated:</span>
+            <span class="meta-value" th:text="${generatedContent.generatedAt}">Timestamp</span>
+          </div>
+        </div>
+        
+        <!-- Article Content -->
+        <div th:if="${generatedContent.type == 'article'}" class="article-content">
+          <div class="content-preview">
+            <h4>Content Preview:</h4>
+            <div class="content-text" th:text="${generatedContent.content}">Article content...</div>
+          </div>
+          <div class="content-stats">
+            <div class="stat-item">
+              <span class="stat-label">Word Count:</span>
+              <span class="stat-value" th:text="${generatedContent.wordCount}">800</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Reading Time:</span>
+              <span class="stat-value" th:text="${generatedContent.readingTime}">4 min</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Video Content -->
+        <div th:if="${generatedContent.type == 'video'}" class="video-content">
+          <div class="content-preview">
+            <h4>Video Script:</h4>
+            <div class="content-text" th:text="${generatedContent.script}">Video script...</div>
+          </div>
+          <div class="content-stats">
+            <div class="stat-item">
+              <span class="stat-label">Duration:</span>
+              <span class="stat-value" th:text="${generatedContent.duration}">2:30</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Hashtags:</span>
+              <span class="stat-value" th:text="${generatedContent.hashtags}">#Parenting #Tips</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Photo Content -->
+        <div th:if="${generatedContent.type == 'photo'}" class="photo-content">
+          <div class="content-preview">
+            <h4>Photo Caption:</h4>
+            <div class="content-text" th:text="${generatedContent.caption}">Photo caption...</div>
+          </div>
+          <div class="content-stats">
+            <div class="stat-item">
+              <span class="stat-label">Alt Text:</span>
+              <span class="stat-value" th:text="${generatedContent.altText}">Alt text...</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Hashtags:</span>
+              <span class="stat-value" th:text="${generatedContent.hashtags}">#Parenting #Tips</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Social Media Platforms -->
+  <section class="social-platforms-section">
+    <div class="platforms-card">
+      <div class="card-header">
+        <h3>📱 Social Media Platforms</h3>
+        <div class="card-actions">
+          <button class="btn btn-sm" onclick="selectAllPlatforms()">Select All</button>
+          <button class="btn btn-sm" onclick="deselectAllPlatforms()">Deselect All</button>
+        </div>
+      </div>
+      
+      <div class="platforms-grid">
+        <div th:each="platform : ${socialPlatforms}" class="platform-item">
+          <div class="platform-checkbox">
+            <input type="checkbox" th:id="${platform.name}" th:value="${platform.name}" name="platforms" class="platform-check">
+            <label th:for="${platform.name}" class="platform-label">
+              <div class="platform-icon" th:text="${platform.icon}">🎵</div>
+              <div class="platform-info">
+                <div class="platform-name" th:text="${platform.name}">TikTok</div>
+                <div class="platform-description" th:text="${platform.description}">Short-form videos</div>
+                <div class="platform-users" th:text="${platform.users} + ' users'">1.2B users</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+      
+      <div th:if="${generatedContent}" class="post-actions">
+        <form th:action="@{/admin/content-generator/post}" method="post" id="postForm">
+          <input type="hidden" name="contentId" th:value="${generatedContent.id}">
+          <div id="platformInputs"></div>
+          <button type="submit" class="btn btn-post" onclick="submitPostForm(event)">
+            <span class="btn-icon">🚀</span>
+            Post to Selected Platforms
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Templates -->
+  <section class="templates-section">
+    <div class="templates-card">
+      <div class="card-header">
+        <h3>📋 Content Templates</h3>
+        <p class="card-subtitle">Quick-start templates for common content types</p>
+      </div>
+      
+      <div class="templates-grid">
+        <div th:each="template : ${contentTemplates}" class="template-item" th:data-template-name="${template.name}" th:data-template-type="${template.type}" onclick="useTemplate(this)">
+          <div class="template-icon" th:text="${template.type == 'article'} ? '📝' : (${template.type == 'video'} ? '🎥' : '📸')">📝</div>
+          <div class="template-info">
+            <div class="template-name" th:text="${template.name}">Parenting Tips</div>
+            <div class="template-description" th:text="${template.description}">Educational content for parents</div>
+            <div class="template-type" th:text="${template.type}">article</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Recent Generated Content -->
+  <section class="recent-content-section">
+    <div class="recent-card">
+      <div class="card-header">
+        <h3>📚 Recent Generated Content</h3>
+        <div class="card-actions">
+          <button class="btn btn-sm">View All</button>
+        </div>
+      </div>
+      
+      <div class="recent-content-list">
+        <div th:each="content : ${recentContent}" class="recent-item">
+          <div class="recent-icon" th:text="${content.type == 'article'} ? '📝' : (${content.type == 'video'} ? '🎥' : '📸')">📝</div>
+          <div class="recent-info">
+            <div class="recent-title" th:text="${content.title}">Content Title</div>
+            <div class="recent-meta">
+              <span class="recent-community" th:text="${content.community}">Community</span>
+              <span class="recent-time" th:text="${content.timeAgo}">2 hours ago</span>
+            </div>
+          </div>
+          <div class="recent-status">
+            <span class="status-badge" th:text="${content.status}">Generated</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+function selectAllPlatforms() {
+  document.querySelectorAll('.platform-check').forEach(checkbox => {
+    checkbox.checked = true;
+  });
+}
+
+function deselectAllPlatforms() {
+  document.querySelectorAll('.platform-check').forEach(checkbox => {
+    checkbox.checked = false;
+  });
+}
+
+function submitPostForm(event) {
+  event.preventDefault();
+  
+  // Get selected platforms
+  const selectedPlatforms = [];
+  document.querySelectorAll('.platform-check:checked').forEach(checkbox => {
+    selectedPlatforms.push(checkbox.value);
+  });
+  
+  if (selectedPlatforms.length === 0) {
+    alert('Please select at least one platform to post to.');
+    return;
+  }
+  
+  // Create hidden inputs for selected platforms
+  const platformInputs = document.getElementById('platformInputs');
+  platformInputs.innerHTML = '';
+  
+  selectedPlatforms.forEach(platform => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'platforms';
+    input.value = platform;
+    platformInputs.appendChild(input);
+  });
+  
+  // Submit the form
+  document.getElementById('postForm').submit();
+}
+</script>
+</body>
+</html>

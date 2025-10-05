@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Communities - Admin</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body class="admin-theme">
+<h1>Communities</h1>
+<table>
+  <tr><th>ID</th><th>Name</th><th>Leader</th><th>Members</th><th>Created</th><th>Actions</th></tr>
+  <tr th:each="c : ${communities}">
+    <td th:text="${c.id}">id</td>
+    <td th:text="${c.name}">name</td>
+    <td th:text="${c.leaderName}">leader</td>
+    <td th:text="${c.memberCount}">0</td>
+    <td th:text="${c.created}">date</td>
+    <td>
+      <a th:href="@{'/admin/communities/' + ${c.id} + '/view'}" class="btn btn-view">View Articles</a>
+      <button>Edit</button>
+      <form th:action="@{'/admin/communities/' + ${c.id} + '/archive'}" method="post" style="display:inline">
+        <button>Archive/Delete</button>
+      </form>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

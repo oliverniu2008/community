@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Users - Admin</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body class="admin-theme">
+<h1>Users</h1>
+<form method="get" style="margin-bottom:12px">
+  <input name="q" placeholder="Search email or name" th:value="${q}"/>
+  <select name="status">
+    <option value="">Any status</option>
+    <option th:selected="${status}=='Active'">Active</option>
+    <option th:selected="${status}=='Suspended'">Suspended</option>
+  </select>
+  <button type="submit">Filter</button>
+</form>
+<table>
+        <tr><th>User ID</th><th>Email</th><th>Full Name</th><th>Join Date</th><th>Status</th><th>KOM tag</th><th>Actions</th></tr>
+        <tr th:each="u : ${users}">
+          <td th:text="${u.id}">id</td>
+          <td th:text="${u.email}">email</td>
+          <td th:text="${u.fullName}">Full Name</td>
+          <td th:text="${#temporals.format(u.joinDate, 'yyyy-MM-dd')}">—</td>
+          <td th:text="${u.status}">Active</td>
+          <td th:text="${komTags.get(u.id)}">—</td>
+    <td>
+      <div th:if="${u.status == 'Active'}">
+        <form th:action="@{'/admin/users/' + ${u.id} + '/suspend'}" method="post" style="display:inline">
+          <button>Suspend</button>
+        </form>
+      </div>
+      <div th:if="${u.status == 'Suspended'}">
+        <form th:action="@{'/admin/users/' + ${u.id} + '/activate'}" method="post" style="display:inline">
+          <button>Activate</button>
+        </form>
+      </div>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

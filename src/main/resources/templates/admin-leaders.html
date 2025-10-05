@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Leaders & Rewards - Admin</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body class="admin-theme">
+<h1>Leaders & Rewards</h1>
+<section>
+  <h2>Leader List</h2>
+  <table>
+    <tr><th>Name</th><th>Email</th><th>Assigned Communities</th><th>Performance</th></tr>
+    <tr th:each="l : ${leaders}">
+      <td th:text="${l.name}">Name</td>
+      <td th:text="${l.email}">Email</td>
+      <td th:text="${assigned != null && assigned.containsKey(l.name) ? assigned[l.name] : '—'}">—</td>
+      <td th:text="${performance != null && performance.containsKey(l.name) ? performance[l.name] : 0}">—</td>
+    </tr>
+  </table>
+</section>
+<section>
+  <h2>Rewards Console</h2>
+  <form method="post" action="/admin/rewards/payouts">
+    <label>Rule: $<input name="dollars" value="5" size="3"/> per new member</label>
+    <label>Tokens: <input name="tokens" value="10" size="3"/> per 100 engagements</label>
+    <div><button type="submit">Process Payouts</button> <small>(prototype)</small></div>
+  </form>
+  <div th:if="${rewards}">
+    <h3>Reward Log</h3>
+    <ul>
+      <li th:each="r : ${rewards}" th:text="${r}">log</li>
+    </ul>
+  </div>
+</section>
+</body>
+</html>

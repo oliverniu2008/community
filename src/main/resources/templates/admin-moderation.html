@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Content Moderation - Admin</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body class="admin-theme">
+<h1>Content Moderation</h1>
+<ul>
+  <li th:each="r : ${reports}">
+    <span th:text="${r}">Report</span>
+    <button>Delete Content</button>
+    <button>Warn User</button>
+  </li>
+</ul>
+</body>
+</html>
