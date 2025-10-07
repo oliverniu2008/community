@@ -197,4 +197,18 @@ public String processPayouts(@RequestParam("dollars") int dollars,
 		model.addAttribute("recentContent", data.getRecentGeneratedContent());
 		return "admin-content-generator";
 	}
+
+	@GetMapping("/admin/content-generator/view/{id}")
+	public String viewGeneratedContent(@PathVariable("id") String id, Model model) {
+		var generatedContent = data.getGeneratedContentById(id);
+		if (generatedContent == null) {
+			return "redirect:/admin/content-generator";
+		}
+		model.addAttribute("generatedContent", generatedContent);
+		model.addAttribute("communities", data.getAllCommunities());
+		model.addAttribute("socialPlatforms", data.getSocialMediaPlatforms());
+		model.addAttribute("contentTemplates", data.getContentTemplates());
+		model.addAttribute("recentContent", data.getRecentGeneratedContent());
+		return "admin-content-generator";
+	}
 }

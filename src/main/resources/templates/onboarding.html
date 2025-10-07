@@ -5,36 +5,210 @@
   <title>Onboarding - SuperM</title>
   <link rel="stylesheet" href="/css/styles.css"/>
 </head>
-<body>
-<h1>Tell us about you</h1>
-<form action="/feed">
-  <label>What is your current stage?
-    <select name="stage">
-      <option>Planning</option>
-      <option>Pregnant</option>
-      <option>0-6 months</option>
-      <option>6-12 months</option>
-      <option>1-3 years</option>
-      <option>3-5 years</option>
-    </select>
-  </label>
-  <label>Topics of interest
-    <select name="topics" multiple>
-      <option>Sleep Training</option>
-      <option>Nutrition</option>
-      <option>Special Needs</option>
-      <option>Postpartum Health</option>
-      <option>Behavior</option>
-    </select>
-  </label>
-  <label>What brings you here?
-    <select name="intent">
-      <option>Seek support</option>
-      <option>Share experience</option>
-      <option>Both</option>
-    </select>
-  </label>
-  <button type="submit">See Recommendations</button>
-</form>
+<body class="ios-theme">
+<div class="onboarding-container">
+  <div class="onboarding-header">
+    <h1>Welcome to SuperM Communities</h1>
+    <p>Let's personalize your experience by learning about your journey</p>
+  </div>
+
+  <form action="/feed" class="onboarding-form">
+    <!-- Stage Selection -->
+    <div class="form-section">
+      <h2>What is your current stage?</h2>
+      <div class="stage-cards">
+        <label class="stage-card">
+          <input type="radio" name="stage" value="Planning" hidden>
+          <div class="card-content">
+            <div class="stage-icon">🤰</div>
+            <div class="stage-title">Planning</div>
+            <div class="stage-description">Thinking about starting a family</div>
+          </div>
+        </label>
+        <label class="stage-card">
+          <input type="radio" name="stage" value="Pregnant" hidden>
+          <div class="card-content">
+            <div class="stage-icon">👶</div>
+            <div class="stage-title">Pregnant</div>
+            <div class="stage-description">Currently expecting</div>
+          </div>
+        </label>
+        <label class="stage-card">
+          <input type="radio" name="stage" value="0-6 months" hidden>
+          <div class="card-content">
+            <div class="stage-icon">🍼</div>
+            <div class="stage-title">0-6 months</div>
+            <div class="stage-description">Newborn phase</div>
+          </div>
+        </label>
+        <label class="stage-card">
+          <input type="radio" name="stage" value="6-12 months" hidden>
+          <div class="card-content">
+            <div class="stage-icon">🧸</div>
+            <div class="stage-title">6-12 months</div>
+            <div class="stage-description">Infant development</div>
+          </div>
+        </label>
+        <label class="stage-card">
+          <input type="radio" name="stage" value="1-3 years" hidden>
+          <div class="card-content">
+            <div class="stage-icon">🚀</div>
+            <div class="stage-title">1-3 years</div>
+            <div class="stage-description">Toddler adventures</div>
+          </div>
+        </label>
+        <label class="stage-card">
+          <input type="radio" name="stage" value="3-5 years" hidden>
+          <div class="card-content">
+            <div class="stage-icon">🌟</div>
+            <div class="stage-title">3-5 years</div>
+            <div class="stage-description">Preschool years</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Topics of Interest -->
+    <div class="form-section">
+      <h2>What topics interest you?</h2>
+      <p class="section-subtitle">Select all that apply - we'll recommend relevant communities</p>
+      <div class="topics-grid">
+        <label class="topic-card">
+          <input type="checkbox" name="topics" value="Sleep Training" hidden>
+          <div class="topic-content">
+            <div class="topic-icon">😴</div>
+            <div class="topic-title">Sleep Training</div>
+            <div class="topic-description">Healthy sleep habits and routines</div>
+          </div>
+        </label>
+        <label class="topic-card">
+          <input type="checkbox" name="topics" value="Nutrition" hidden>
+          <div class="topic-content">
+            <div class="topic-icon">🥗</div>
+            <div class="topic-title">Nutrition</div>
+            <div class="topic-description">Feeding and dietary guidance</div>
+          </div>
+        </label>
+        <label class="topic-card">
+          <input type="checkbox" name="topics" value="Special Needs" hidden>
+          <div class="topic-content">
+            <div class="topic-icon">❤️</div>
+            <div class="topic-title">Special Needs</div>
+            <div class="topic-description">Support for unique challenges</div>
+          </div>
+        </label>
+        <label class="topic-card">
+          <input type="checkbox" name="topics" value="Postpartum Health" hidden>
+          <div class="topic-content">
+            <div class="topic-icon">💪</div>
+            <div class="topic-title">Postpartum Health</div>
+            <div class="topic-description">Recovery and wellness</div>
+          </div>
+        </label>
+        <label class="topic-card">
+          <input type="checkbox" name="topics" value="Behavior" hidden>
+          <div class="topic-content">
+            <div class="topic-icon">🎭</div>
+            <div class="topic-title">Behavior</div>
+            <div class="topic-description">Managing challenging behaviors</div>
+          </div>
+        </label>
+        <label class="topic-card">
+          <input type="checkbox" name="topics" value="Development" hidden>
+          <div class="topic-content">
+            <div class="topic-icon">🧠</div>
+            <div class="topic-title">Development</div>
+            <div class="topic-description">Milestones and learning</div>
+          </div>
+        </label>
+        <label class="topic-card">
+          <input type="checkbox" name="topics" value="Safety" hidden>
+          <div class="topic-content">
+            <div class="topic-icon">🛡️</div>
+            <div class="topic-title">Safety</div>
+            <div class="topic-description">Childproofing and protection</div>
+          </div>
+        </label>
+        <label class="topic-card">
+          <input type="checkbox" name="topics" value="Activities" hidden>
+          <div class="topic-content">
+            <div class="topic-icon">🎨</div>
+            <div class="topic-title">Activities</div>
+            <div class="topic-description">Fun and educational play</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <!-- Intent Selection -->
+    <div class="form-section">
+      <h2>What brings you here?</h2>
+      <div class="intent-cards">
+        <label class="intent-card">
+          <input type="radio" name="intent" value="Seek support" hidden>
+          <div class="card-content">
+            <div class="intent-icon">🤗</div>
+            <div class="intent-title">Seek Support</div>
+            <div class="intent-description">Looking for guidance and community</div>
+          </div>
+        </label>
+        <label class="intent-card">
+          <input type="radio" name="intent" value="Share experience" hidden>
+          <div class="card-content">
+            <div class="intent-icon">💬</div>
+            <div class="intent-title">Share Experience</div>
+            <div class="intent-description">Ready to help others on their journey</div>
+          </div>
+        </label>
+        <label class="intent-card">
+          <input type="radio" name="intent" value="Both" hidden>
+          <div class="card-content">
+            <div class="intent-icon">🤝</div>
+            <div class="intent-title">Both</div>
+            <div class="intent-description">Give and receive support</div>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="submit-btn">
+        <span>See My Recommendations</span>
+        <div class="btn-icon">→</div>
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+// Enhanced form interactions
+document.addEventListener('DOMContentLoaded', function() {
+  // Stage card selection
+  const stageCards = document.querySelectorAll('.stage-card');
+  stageCards.forEach(card => {
+    card.addEventListener('click', function() {
+      stageCards.forEach(c => c.classList.remove('selected'));
+      this.classList.add('selected');
+    });
+  });
+
+  // Topic card selection
+  const topicCards = document.querySelectorAll('.topic-card');
+  topicCards.forEach(card => {
+    card.addEventListener('click', function() {
+      this.classList.toggle('selected');
+    });
+  });
+
+  // Intent card selection
+  const intentCards = document.querySelectorAll('.intent-card');
+  intentCards.forEach(card => {
+    card.addEventListener('click', function() {
+      intentCards.forEach(c => c.classList.remove('selected'));
+      this.classList.add('selected');
+    });
+  });
+});
+</script>
 </body>
 </html>

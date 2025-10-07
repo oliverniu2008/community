@@ -5,12 +5,12 @@
   <title>SuperM Communities</title>
   <link rel="stylesheet" href="/css/styles.css"/>
 </head>
-<body>
+<body class="ios-theme">
 <header class="hero" style="background-image:url(/img/banner.svg);background-size:cover;background-position:center;">
   <h1>Welcome to SuperM Communities</h1>
   <p>Find your village. Grow together.</p>
   <form method="get" action="/">
-    <input class="search" type="text" name="q" placeholder="Find your community (e.g., 'pregnancy nutrition', 'ADHD toddlers')"/>
+    <input class="search" type="text" name="q" placeholder="Search communities and articles..." th:value="${searchQuery}"/>
     <button type="submit">Search</button>
   </form>
   <nav>
@@ -18,31 +18,166 @@
     <a href="/feed">Log In</a>
   </nav>
 </header>
-<section>
-  <h2>How It Works</h2>
-  <ol class="how">
-    <li>Tell us your stage and interests</li>
-    <li>Join recommended micro-communities</li>
-    <li>Share, learn, and thrive</li>
-  </ol>
-</section>
-<section>
-  <h2>Featured Communities</h2>
-  <div class="cards">
-    <div th:each="c : ${featured}" class="card">
-      <h3 th:text="${c.name}">Community</h3>
-      <p th:text="${c.description}">Description</p>
-      <a th:href="@{'/community/' + ${c.id}}">View</a>
-    <ul class="muted" style="margin:8px 0 0 18px" th:if="${#lists.size(@staticDataService.getArticleTitlesByCommunity(c.id))>0}">
-      <li th:each="title : ${@staticDataService.getArticleTitlesByCommunity(c.id)}" th:text="${title}">Article Title</li>
-    </ul>
+
+<!-- Search Results Section -->
+<div th:if="${searchResults != null and !searchResults.empty}" class="search-results-section">
+  <div class="container">
+    <div class="search-results-header">
+      <h2>Search Results for "<span th:text="${searchQuery}">query</span>"</h2>
+      <p th:text="${#lists.size(searchResults)} + ' articles found'">0 articles found</p>
+    </div>
+    <div class="search-results-grid">
+      <div th:each="article : ${searchResults}" class="search-result-card">
+        <div class="search-result-header">
+          <div class="search-result-community">
+            <span class="community-badge" th:text="${article.communityName}">Community</span>
+          </div>
+          <div class="search-result-meta">
+            <span class="search-result-author" th:text="${article.author}">Author</span>
+            <span class="search-result-date" th:text="${article.publishedDate}">Date</span>
+          </div>
+        </div>
+        <h3 class="search-result-title" th:text="${article.title}">Article Title</h3>
+        <p class="search-result-excerpt" th:text="${article.excerpt}">Article excerpt...</p>
+        <div class="search-result-stats">
+          <span class="search-result-views">👁️ <span th:text="${article.views}">0</span> views</span>
+          <span class="search-result-likes">❤️ <span th:text="${article.likes}">0</span> likes</span>
+          <span class="search-result-comments">💬 <span th:text="${article.comments}">0</span> comments</span>
+        </div>
+        <div class="search-result-actions">
+          <a th:href="@{'/community/' + ${article.communityId}}" class="btn btn-primary">View Community</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<section class="how-it-works-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-subtitle">Join your village in three simple steps</p>
+    </div>
+    <div class="steps-container">
+      <div class="step-item">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <h3 class="step-title">Tell us your stage and interests</h3>
+          <p class="step-description">Share your parenting journey and what matters most to you</p>
+          <div class="step-icon">👤</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <h3 class="step-title">Join recommended micro-communities</h3>
+          <p class="step-description">Connect with parents who share your experiences and challenges</p>
+          <div class="step-icon">🤝</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <h3 class="step-title">Share, learn, and thrive</h3>
+          <p class="step-description">Engage in meaningful conversations and grow together</p>
+          <div class="step-icon">🌱</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
-<section>
-  <h2>For Community Leaders</h2>
-  <p>Lead a supportive micro-community and earn rewards.</p>
-  <a href="/leader">Leader Dashboard</a>
+<section class="featured-communities-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Featured Communities</h2>
+      <p class="section-subtitle">Discover vibrant communities tailored to your parenting journey</p>
+    </div>
+    <div class="communities-grid">
+      <div th:each="c : ${featured}" class="community-card">
+        <div class="community-header">
+          <div class="community-icon">🏘️</div>
+          <div class="community-info">
+            <h3 class="community-name" th:text="${c.name}">Community</h3>
+            <div class="community-meta">
+              <span class="member-count" th:text="${c.memberCount} + ' members'">128 members</span>
+              <span class="community-age" th:text="${#temporals.format(c.created, 'MMM yyyy')}">Jan 2024</span>
+            </div>
+          </div>
+        </div>
+        <p class="community-description" th:text="${c.description}">Description</p>
+        <div class="community-articles" th:if="${#lists.size(@staticDataService.getArticleTitlesByCommunity(c.id))>0}">
+          <div class="articles-header">
+            <span class="articles-label">Recent Articles</span>
+            <span class="articles-count" th:text="${#lists.size(@staticDataService.getArticleTitlesByCommunity(c.id))} + ' articles'">3 articles</span>
+          </div>
+          <ul class="articles-list">
+            <li th:each="title : ${@staticDataService.getArticleTitlesByCommunity(c.id)}" th:text="${title}">Article Title</li>
+          </ul>
+        </div>
+        <div class="community-actions">
+          <a th:href="@{'/community/' + ${c.id}}" class="btn btn-primary">Join Community</a>
+          <button class="btn btn-secondary">Learn More</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="community-leaders-section">
+  <div class="container">
+    <div class="leaders-content">
+      <div class="leaders-text">
+        <div class="section-header">
+          <h2 class="section-title">For Community Leaders</h2>
+          <p class="section-subtitle">Lead a supportive micro-community and earn rewards</p>
+        </div>
+        <div class="leaders-benefits">
+          <div class="benefit-item">
+            <div class="benefit-icon">💡</div>
+            <div class="benefit-content">
+              <h4 class="benefit-title">Share Your Expertise</h4>
+              <p class="benefit-description">Help other parents navigate similar challenges</p>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-icon">🎁</div>
+            <div class="benefit-content">
+              <h4 class="benefit-title">Earn Rewards</h4>
+              <p class="benefit-description">Get compensated for your valuable contributions</p>
+            </div>
+          </div>
+          <div class="benefit-item">
+            <div class="benefit-icon">🌟</div>
+            <div class="benefit-content">
+              <h4 class="benefit-title">Build Your Legacy</h4>
+              <p class="benefit-description">Create lasting impact in your community</p>
+            </div>
+          </div>
+        </div>
+        <div class="leaders-actions">
+          <a href="/leader" class="btn btn-primary btn-large">Start Leading</a>
+          <a href="/onboarding" class="btn btn-outline">Learn More</a>
+        </div>
+      </div>
+      <div class="leaders-visual">
+        <div class="leader-card">
+          <div class="leader-avatar">👩‍💼</div>
+          <div class="leader-info">
+            <h4 class="leader-name">Sarah Chen</h4>
+            <p class="leader-role">Community Leader</p>
+            <div class="leader-stats">
+              <div class="stat">
+                <span class="stat-number">2.3K</span>
+                <span class="stat-label">Members Helped</span>
+              </div>
+              <div class="stat">
+                <span class="stat-number">$1,250</span>
+                <span class="stat-label">Earned</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 </body>
 </html>

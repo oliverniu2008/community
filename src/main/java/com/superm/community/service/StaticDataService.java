@@ -22,6 +22,7 @@ public class StaticDataService {
 	private final List<Post> posts;
 	private final List<String> rewardLog;
 	private final List<java.util.Map<String, Object>> recentGeneratedContent;
+	private final java.util.Map<String, java.util.Map<String, Object>> generatedContentById;
 
 	public StaticDataService() {
 		Random random = new Random(42); // Fixed seed for consistent results
@@ -57,6 +58,14 @@ public class StaticDataService {
 
 		this.rewardLog = new ArrayList<>();
 		this.recentGeneratedContent = new ArrayList<>();
+		this.generatedContentById = new java.util.HashMap<>();
+		
+		// Initialize with some sample content
+		this.recentGeneratedContent.add(createContentData("content_001", "article", "5 Tips for Better Sleep Training", "Sleep Training 0-6m", "Generated", "2 hours ago"));
+		this.recentGeneratedContent.add(createContentData("content_002", "video", "Quick Morning Routine for Busy Parents", "Parent Fitness", "Posted to TikTok", "5 hours ago"));
+		this.recentGeneratedContent.add(createContentData("content_003", "photo", "Motivational Monday Quote", "ADHD Toddlers", "Posted to Instagram", "1 day ago"));
+		this.recentGeneratedContent.add(createContentData("content_004", "article", "Nutrition Guide for Expecting Mothers", "Pregnancy Nutrition", "Draft", "2 days ago"));
+		this.recentGeneratedContent.add(createContentData("content_005", "video", "Community Success Stories", "Special Needs Support", "Posted to Facebook", "3 days ago"));
 	}
 
 	public List<Community> getAllCommunities() { return communities; }
@@ -562,6 +571,9 @@ public class StaticDataService {
 				break;
 		}
 		
+		// Persist full content by ID for later viewing
+		generatedContentById.put(content.get("id").toString(), content);
+
 		// Add to recent generated content list
 		java.util.Map<String, Object> recentItem = createContentData(
 			content.get("id").toString(),
@@ -579,6 +591,10 @@ public class StaticDataService {
 		}
 		
 		return content;
+	}
+
+	public java.util.Map<String, Object> getGeneratedContentById(String contentId) {
+		return generatedContentById.get(contentId);
 	}
 	
 	public java.util.List<java.util.Map<String, Object>> getSocialMediaPlatforms() {
@@ -604,16 +620,7 @@ public class StaticDataService {
 	}
 	
 	public java.util.List<java.util.Map<String, Object>> getRecentGeneratedContent() {
-		// If no recent content, return some sample data
-		if (recentGeneratedContent.isEmpty()) {
-			java.util.List<java.util.Map<String, Object>> sampleContent = new java.util.ArrayList<>();
-			sampleContent.add(createContentData("content_001", "article", "5 Tips for Better Sleep Training", "Sleep Training 0-6m", "Generated", "2 hours ago"));
-			sampleContent.add(createContentData("content_002", "video", "Quick Morning Routine for Busy Parents", "Parent Fitness", "Posted to TikTok", "5 hours ago"));
-			sampleContent.add(createContentData("content_003", "photo", "Motivational Monday Quote", "ADHD Toddlers", "Posted to Instagram", "1 day ago"));
-			sampleContent.add(createContentData("content_004", "article", "Nutrition Guide for Expecting Mothers", "Pregnancy Nutrition", "Draft", "2 days ago"));
-			sampleContent.add(createContentData("content_005", "video", "Community Success Stories", "Special Needs Support", "Posted to Facebook", "3 days ago"));
-			return sampleContent;
-		}
+		// Always return the actual recent content list
 		return new java.util.ArrayList<>(recentGeneratedContent);
 	}
 	
@@ -904,5 +911,64 @@ public class StaticDataService {
 		content.put("status", status);
 		content.put("timeAgo", timeAgo);
 		return content;
+	}
+	
+	// Search functionality
+	public List<java.util.Map<String, Object>> searchArticles(String query) {
+		String lowercaseQuery = query.toLowerCase();
+		List<java.util.Map<String, Object>> results = new ArrayList<>();
+		
+		// Search through all communities and their articles
+		for (Community community : communities) {
+			List<java.util.Map<String, Object>> articles = getArticlesByCommunity(community.getId());
+			for (java.util.Map<String, Object> article : articles) {
+				String title = article.get("title").toString().toLowerCase();
+				String excerpt = article.get("excerpt").toString().toLowerCase();
+				String author = article.get("author").toString().toLowerCase();
+				
+				// Check if query matches title, excerpt, or author
+				if (title.contains(lowercaseQuery) || excerpt.contains(lowercaseQuery) || author.contains(lowercaseQuery)) {
+					// Add community information to the article
+					java.util.Map<String, Object> searchResult = new java.util.HashMap<>(article);
+					searchResult.put("communityName", community.getName());
+					searchResult.put("communityId", community.getId());
+					searchResult.put("communityDescription", community.getDescription());
+					results.add(searchResult);
+				}
+			}
+		}
+		
+		// Sort by relevance (title matches first, then excerpt, then author)
+		results.sort((a, b) -> {
+			String queryLower = lowercaseQuery;
+			String titleA = a.get("title").toString().toLowerCase();
+			String titleB = b.get("title").toString().toLowerCase();
+			String excerptA = a.get("excerpt").toString().toLowerCase();
+			String excerptB = b.get("excerpt").toString().toLowerCase();
+			
+			// Prioritize title matches
+			boolean titleMatchA = titleA.contains(queryLower);
+			boolean titleMatchB = titleB.contains(queryLower);
+			if (titleMatchA && !titleMatchB) return -1;
+			if (!titleMatchA && titleMatchB) return 1;
+			
+			// Then excerpt matches
+			boolean excerptMatchA = excerptA.contains(queryLower);
+			boolean excerptMatchB = excerptB.contains(queryLower);
+			if (excerptMatchA && !excerptMatchB) return -1;
+			if (!excerptMatchA && excerptMatchB) return 1;
+			
+			// Finally sort by views (descending)
+			Integer viewsA = (Integer) a.get("views");
+			Integer viewsB = (Integer) b.get("views");
+			return viewsB.compareTo(viewsA);
+		});
+		
+		// Limit results to top 20
+		if (results.size() > 20) {
+			results = results.subList(0, 20);
+		}
+		
+		return results;
 	}
 }

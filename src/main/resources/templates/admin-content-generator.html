@@ -283,7 +283,7 @@
       </div>
       
       <div class="recent-content-list">
-        <div th:each="content : ${recentContent}" class="recent-item">
+        <a th:each="content : ${recentContent}" th:href="@{'/admin/content-generator/view/' + ${content.id}}" class="recent-item" style="text-decoration:none;">
           <div class="recent-icon" th:text="${content.type == 'article'} ? '📝' : (${content.type == 'video'} ? '🎥' : '📸')">📝</div>
           <div class="recent-info">
             <div class="recent-title" th:text="${content.title}">Content Title</div>
@@ -295,7 +295,7 @@
           <div class="recent-status">
             <span class="status-badge" th:text="${content.status}">Generated</span>
           </div>
-        </div>
+        </a>
       </div>
     </div>
   </section>
