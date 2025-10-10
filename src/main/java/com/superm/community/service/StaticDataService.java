@@ -27,19 +27,19 @@ public class StaticDataService {
 	public StaticDataService() {
 		Random random = new Random(42); // Fixed seed for consistent results
 		this.users = new ArrayList<>(Arrays.asList(
-			new User("u1", "parent1@example.com", "Avery Kim", "Avery Kim", false, "Active", generateRandomJoinDate(random)),
-			new User("u2", "leader1@example.com", "Jordan Lee", "Jordan Lee", true, "Active", generateRandomJoinDate(random)),
-			new User("u3", "parent2@example.com", "Sam Patel", "Sam Patel", false, "Active", generateRandomJoinDate(random)),
-			new User("u4", "leader2@example.com", "Morgan Rivera", "Morgan Rivera", true, "Active", generateRandomJoinDate(random)),
-			new User("u5", "leader3@example.com", "Riley Chen", "Riley Chen", true, "Active", generateRandomJoinDate(random)),
-			new User("u6", "leader4@example.com", "Taylor Singh", "Taylor Singh", true, "Active", generateRandomJoinDate(random)),
-			new User("u7", "leader5@example.com", "Jamie Brooks", "Jamie Brooks", true, "Active", generateRandomJoinDate(random)),
-			new User("u8", "leader6@example.com", "Casey Nguyen", "Casey Nguyen", true, "Active", generateRandomJoinDate(random)),
-			new User("u9", "leader7@example.com", "Alex Martinez", "Alex Martinez", true, "Active", generateRandomJoinDate(random)),
-			new User("u10", "leader8@example.com", "Charlie Ahmed", "Charlie Ahmed", true, "Active", generateRandomJoinDate(random)),
-			new User("u11", "leader9@example.com", "Parker Rossi", "Parker Rossi", true, "Active", generateRandomJoinDate(random)),
-			new User("u12", "leader10@example.com", "Drew Nakamura", "Drew Nakamura", true, "Active", generateRandomJoinDate(random)),
-			new User("u13", "leader11@example.com", "Jordan Scott", "Jordan Scott", true, "Active", generateRandomJoinDate(random))));
+			new User(generateUserId(random), "parent1@example.com", "Avery Kim", "Avery Kim", false, "Active", generateRandomJoinDate(random)),
+			new User(generateUserId(random), "leader1@example.com", "Jordan Lee", "Jordan Lee", true, "Active", generateRandomJoinDate(random)),
+			new User(generateUserId(random), "parent2@example.com", "Sam Patel", "Sam Patel", false, "Active", generateRandomJoinDate(random)),
+			new User(generateUserId(random), "leader2@example.com", "Morgan Rivera", "Morgan Rivera", true, "Active", generateRandomJoinDate(random)),
+			new User(generateUserId(random), "leader3@example.com", "Riley Chen", "Riley Chen", true, "Active", generateRandomJoinDate(random)),
+			new User(generateUserId(random), "leader4@example.com", "Taylor Singh", "Taylor Singh", true, "Active", generateRandomJoinDate(random)),
+			new User(generateUserId(random), "leader5@example.com", "Jamie Brooks", "Jamie Brooks", true, "Active", generateRandomJoinDate(random)),
+			new User(generateUserId(random), "leader6@example.com", "Casey Nguyen", "Casey Nguyen", true, "Active", generateRandomJoinDate(random)),
+			new User(generateUserId(random), "leader7@example.com", "Alex Martinez", "Alex Martinez", true, "Active", generateRandomJoinDate(random)),
+			new User(generateUserId(random), "leader8@example.com", "Charlie Ahmed", "Charlie Ahmed", true, "Active", generateRandomJoinDate(random)),
+			new User(generateUserId(random), "leader9@example.com", "Parker Rossi", "Parker Rossi", true, "Active", generateRandomJoinDate(random)),
+			new User(generateUserId(random), "leader10@example.com", "Drew Nakamura", "Drew Nakamura", true, "Active", generateRandomJoinDate(random)),
+			new User(generateUserId(random), "leader11@example.com", "Jordan Scott", "Jordan Scott", true, "Active", generateRandomJoinDate(random))));
 
 		this.communities = new ArrayList<>(Arrays.asList(
 			new Community("c1", "Pregnancy Nutrition", "Tips and support for healthy pregnancy nutrition.", "Jordan Lee", 128, LocalDate.now().minusDays(42)),
@@ -75,6 +75,27 @@ public class StaticDataService {
 	public Community findCommunityById(String id) {
 		return communities.stream().filter(c -> c.getId().equals(id)).findFirst().orElse(null);
 	}
+	
+	// Login authentication
+	public User authenticateUser(String username, String password) {
+		// Hardcoded login: username = "oliver", password = "oliver"
+		if ("oliver".equals(username) && "oliver".equals(password)) {
+			// Return the first user as the authenticated user (or create a special admin user)
+			User adminUser = users.stream()
+				.filter(u -> u.getEmail().equals("leader1@example.com"))
+				.findFirst()
+				.orElse(users.get(0));
+			return adminUser;
+		}
+		return null;
+	}
+	
+	public User findUserById(String userId) {
+		return users.stream()
+			.filter(u -> u.getId().equals(userId))
+			.findFirst()
+			.orElse(null);
+	}
 
 	public List<Post> getPostsForCommunity(String communityId) {
 		return posts.stream().filter(p -> p.getCommunityId().equals(communityId)).collect(Collectors.toList());
@@ -94,6 +115,16 @@ public class StaticDataService {
 		}).collect(Collectors.toList());
 	}
 
+	private String generateUserId(Random random) {
+		// Generate 16 random alphanumeric characters
+		String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		StringBuilder userId = new StringBuilder("super");
+		for (int i = 0; i < 16; i++) {
+			userId.append(chars.charAt(random.nextInt(chars.length())));
+		}
+		return userId.toString();
+	}
+	
 	private LocalDate generateRandomJoinDate(Random random) {
 		// Generate random date between 2012-01-01 and 2024-12-31
 		int year = 2012 + random.nextInt(13); // 2012 to 2024

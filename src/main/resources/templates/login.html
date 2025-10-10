@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Login - SuperM Communities</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body class="ios-theme">
+<div class="login-container">
+  <div class="login-glass-card">
+    <div class="login-header">
+      <h1>Welcome Back</h1>
+      <p>Sign in to access your community</p>
+    </div>
+    
+    <div th:if="${error}" class="login-error">
+      <span class="error-icon">⚠️</span>
+      <span th:text="${error}">Error message</span>
+    </div>
+    
+    <form method="post" action="/login" class="login-form">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" 
+               id="username" 
+               name="username" 
+               placeholder="Enter your username" 
+               required 
+               autofocus/>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" 
+               id="password" 
+               name="password" 
+               placeholder="Enter your password" 
+               required/>
+      </div>
+      
+      <button type="submit" class="login-btn">
+        <span>Sign In</span>
+        <div class="btn-icon">→</div>
+      </button>
+    </form>
+    
+    <div class="login-footer">
+      <p>Don't have an account? <a href="/onboarding">Sign up here</a></p>
+      <p><a href="/">← Back to Home</a></p>
+    </div>
+    
+    <div class="login-demo-info">
+      <div class="demo-badge">Demo Account</div>
+      <p><strong>Username:</strong> oliver</p>
+      <p><strong>Password:</strong> oliver</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Add visual feedback for form inputs
+document.addEventListener('DOMContentLoaded', function() {
+  const inputs = document.querySelectorAll('.login-form input');
+  
+  inputs.forEach(input => {
+    input.addEventListener('focus', function() {
+      this.parentElement.classList.add('focused');
+    });
+    
+    input.addEventListener('blur', function() {
+      if (!this.value) {
+        this.parentElement.classList.remove('focused');
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>
+
