@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>AI Parenting Assistant - SuperM</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body class="ios-theme">
+<div class="ai-assistant-container">
+  <!-- Navigation Bar -->
+  <nav class="ai-nav">
+    <div class="nav-content">
+      <a href="/feed" class="nav-back">← Back to Feed</a>
+      <div class="nav-title">
+        <h2>🤖 AI Parenting Assistant</h2>
+        <p class="nav-subtitle">Your 24/7 parenting support</p>
+      </div>
+      <div class="nav-actions">
+        <button onclick="clearChat()" class="nav-btn">Clear Chat</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="ai-content">
+    <!-- Sidebar with Quick Actions -->
+    <aside class="ai-sidebar">
+      <div class="quick-actions">
+        <h3>💡 Quick Questions</h3>
+        <button class="quick-action-btn" onclick="askQuestion('My baby won\'t sleep through the night. What can I do?')">
+          <span class="action-icon">😴</span>
+          <span class="action-text">Sleep Help</span>
+        </button>
+        <button class="quick-action-btn" onclick="askQuestion('What are healthy meal ideas for a 2-year-old?')">
+          <span class="action-icon">🥗</span>
+          <span class="action-text">Nutrition Tips</span>
+        </button>
+        <button class="quick-action-btn" onclick="askQuestion('How do I handle toddler tantrums?')">
+          <span class="action-icon">🎭</span>
+          <span class="action-text">Behavior Guide</span>
+        </button>
+        <button class="quick-action-btn" onclick="askQuestion('What developmental milestones should I expect at 6 months?')">
+          <span class="action-icon">🧠</span>
+          <span class="action-text">Milestones</span>
+        </button>
+        <button class="quick-action-btn" onclick="askQuestion('Is my child ready for potty training?')">
+          <span class="action-icon">🚽</span>
+          <span class="action-text">Potty Training</span>
+        </button>
+        <button class="quick-action-btn" onclick="askQuestion('How can I improve my postpartum mental health?')">
+          <span class="action-icon">💪</span>
+          <span class="action-text">Self-Care</span>
+        </button>
+      </div>
+
+      <div class="ai-info">
+        <h3>ℹ️ About This Assistant</h3>
+        <ul>
+          <li>✅ Evidence-based advice</li>
+          <li>✅ Available 24/7</li>
+          <li>✅ Remembers context</li>
+          <li>✅ Share to community</li>
+          <li>⚠️ Not medical advice</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="ai-chat-main">
+      <div class="chat-messages" id="chatMessages">
+        <!-- Welcome Message -->
+        <div class="message ai-message">
+          <div class="message-avatar">🤖</div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-sender">AI Assistant</span>
+              <span class="message-time">Now</span>
+            </div>
+            <div class="message-text">
+              <p>👋 Hello <strong th:text="${userName}">there</strong>! I'm your AI Parenting Assistant.</p>
+              <p>I'm here to help with:</p>
+              <ul>
+                <li>Sleep training and routines</li>
+                <li>Nutrition and feeding</li>
+                <li>Behavior and discipline</li>
+                <li>Development milestones</li>
+                <li>Health and safety</li>
+                <li>Parenting strategies</li>
+              </ul>
+              <p>What would you like to know today?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typing Indicator -->
+      <div class="typing-indicator" id="typingIndicator" style="display: none;">
+        <div class="message-avatar">🤖</div>
+        <div class="typing-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <div class="chat-input-container">
+        <form class="chat-input-form" id="chatForm" onsubmit="sendMessage(event)">
+          <button type="button" class="voice-btn" onclick="startVoiceInput()" title="Voice Input">
+            🎤
+          </button>
+          <textarea 
+            id="messageInput" 
+            class="chat-input" 
+            placeholder="Ask me anything about parenting..."
+            rows="1"
+            onkeydown="handleKeyDown(event)"></textarea>
+          <button type="submit" class="send-btn" id="sendBtn">
+            <span class="send-icon">→</span>
+          </button>
+        </form>
+        <div class="input-hint">
+          <span>💡 Tip: Be specific for better answers. Press Enter to send, Shift+Enter for new line.</span>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+const userName = /*[[${userName}]]*/ 'User';
+let conversationHistory = [];
+
+// Auto-resize textarea
+const textarea = document.getElementById('messageInput');
+textarea.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = (this.scrollHeight) + 'px';
+});
+
+// Handle Enter key
+function handleKeyDown(event) {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    sendMessage(event);
+  }
+}
+
+// Quick action questions
+function askQuestion(question) {
+  document.getElementById('messageInput').value = question;
+  sendMessage(new Event('submit'));
+}
+
+// Send message
+async function sendMessage(event) {
+  event.preventDefault();
+  
+  const input = document.getElementById('messageInput');
+  const message = input.value.trim();
+  
+  if (!message) return;
+  
+  // Add user message to chat
+  addMessage(message, 'user');
+  input.value = '';
+  input.style.height = 'auto';
+  
+  // Show typing indicator
+  showTyping();
+  
+  // Send to backend
+  try {
+    const response = await fetch('/ai-assistant/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: message,
+        history: conversationHistory
+      })
+    });
+    
+    const data = await response.json();
+    
+    hideTyping();
+    
+    if (data.success) {
+      addMessage(data.response, 'ai', data.canShare);
+      conversationHistory.push({
+        role: 'user',
+        content: message
+      });
+      conversationHistory.push({
+        role: 'assistant',
+        content: data.response
+      });
+    } else {
+      addMessage('Sorry, I encountered an error. Please try again.', 'ai', false);
+    }
+  } catch (error) {
+    hideTyping();
+    addMessage('Sorry, I\'m having trouble connecting. Please check your connection and try again.', 'ai', false);
+  }
+}
+
+// Add message to chat
+function addMessage(text, type, canShare = false) {
+  const messagesContainer = document.getElementById('chatMessages');
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${type}-message`;
+  
+  const time = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  
+  if (type === 'user') {
+    messageDiv.innerHTML = `
+      <div class="message-content">
+        <div class="message-header">
+          <span class="message-sender">You</span>
+          <span class="message-time">${time}</span>
+        </div>
+        <div class="message-text">
+          <p>${escapeHtml(text)}</p>
+        </div>
+      </div>
+      <div class="message-avatar">👤</div>
+    `;
+  } else {
+    const shareButton = canShare ? `
+      <div class="message-actions">
+        <button class="action-btn" onclick="shareToCommunity('${escapeHtml(text)}')">
+          <span>📤 Share to Community</span>
+        </button>
+        <button class="action-btn" onclick="copyMessage('${escapeHtml(text)}')">
+          <span>📋 Copy</span>
+        </button>
+      </div>
+    ` : '';
+    
+    messageDiv.innerHTML = `
+      <div class="message-avatar">🤖</div>
+      <div class="message-content">
+        <div class="message-header">
+          <span class="message-sender">AI Assistant</span>
+          <span class="message-time">${time}</span>
+        </div>
+        <div class="message-text">
+          ${formatMessage(text)}
+        </div>
+        ${shareButton}
+      </div>
+    `;
+  }
+  
+  messagesContainer.appendChild(messageDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Format AI message (convert markdown-like syntax)
+function formatMessage(text) {
+  // Convert line breaks
+  text = text.replace(/\n/g, '<br>');
+  
+  // Convert **bold**
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  
+  // Convert numbered lists
+  text = text.replace(/(\d+\.\s.*?)(?=\d+\.|$)/g, '<li>$1</li>');
+  if (text.includes('<li>')) {
+    text = '<ol>' + text + '</ol>';
+  }
+  
+  // Convert bullet points
+  text = text.replace(/•\s(.*?)(?=•|$)/g, '<li>$1</li>');
+  if (text.includes('<li>') && !text.includes('<ol>')) {
+    text = '<ul>' + text + '</ul>';
+  }
+  
+  return '<p>' + text + '</p>';
+}
+
+// Escape HTML
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// Show/hide typing indicator
+function showTyping() {
+  document.getElementById('typingIndicator').style.display = 'flex';
+  const messagesContainer = document.getElementById('chatMessages');
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+function hideTyping() {
+  document.getElementById('typingIndicator').style.display = 'none';
+}
+
+// Clear chat
+function clearChat() {
+  if (confirm('Are you sure you want to clear the chat history?')) {
+    const messagesContainer = document.getElementById('chatMessages');
+    // Keep only the welcome message
+    const welcomeMsg = messagesContainer.querySelector('.ai-message');
+    messagesContainer.innerHTML = '';
+    messagesContainer.appendChild(welcomeMsg);
+    conversationHistory = [];
+  }
+}
+
+// Voice input (placeholder for future implementation)
+function startVoiceInput() {
+  alert('Voice input coming soon! For now, please type your question.');
+}
+
+// Share to community (placeholder)
+function shareToCommunity(text) {
+  alert('Share to community feature coming soon!');
+}
+
+// Copy message
+function copyMessage(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Message copied to clipboard!');
+  });
+}
+
+// Auto-focus on input
+window.addEventListener('load', function() {
+  document.getElementById('messageInput').focus();
+});
+/*]]>*/
+</script>
+</body>
+</html>
+

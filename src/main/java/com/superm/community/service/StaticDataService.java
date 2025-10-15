@@ -27,6 +27,7 @@ public class StaticDataService {
 	public StaticDataService() {
 		Random random = new Random(42); // Fixed seed for consistent results
 		this.users = new ArrayList<>(Arrays.asList(
+			new User("superOliverAdmin01", "oliver@superm.com", "Oliver", "Oliver Admin", true, "Active", LocalDate.of(2024, 1, 1)),
 			new User(generateUserId(random), "parent1@example.com", "Avery Kim", "Avery Kim", false, "Active", generateRandomJoinDate(random)),
 			new User(generateUserId(random), "leader1@example.com", "Jordan Lee", "Jordan Lee", true, "Active", generateRandomJoinDate(random)),
 			new User(generateUserId(random), "parent2@example.com", "Sam Patel", "Sam Patel", false, "Active", generateRandomJoinDate(random)),
@@ -80,9 +81,9 @@ public class StaticDataService {
 	public User authenticateUser(String username, String password) {
 		// Hardcoded login: username = "oliver", password = "oliver"
 		if ("oliver".equals(username) && "oliver".equals(password)) {
-			// Return the first user as the authenticated user (or create a special admin user)
+			// Return the Oliver admin user
 			User adminUser = users.stream()
-				.filter(u -> u.getEmail().equals("leader1@example.com"))
+				.filter(u -> u.getEmail().equals("oliver@superm.com"))
 				.findFirst()
 				.orElse(users.get(0));
 			return adminUser;
@@ -95,6 +96,54 @@ public class StaticDataService {
 			.filter(u -> u.getId().equals(userId))
 			.findFirst()
 			.orElse(null);
+	}
+	
+	public boolean emailExists(String email) {
+		return users.stream()
+			.anyMatch(u -> u.getEmail().equalsIgnoreCase(email));
+	}
+	
+	public User createUser(String email, String password, String fullName, String[] topics, String referrerId) {
+		Random random = new Random();
+		String userId = generateUserId(random);
+		String name = fullName.split(" ")[0]; // Use first name
+		LocalDate joinDate = LocalDate.now();
+		
+		// Create new user (all new users start as regular members)
+		User newUser = new User(userId, email, name, fullName, false, "Active", joinDate);
+		users.add(newUser);
+		
+		// Store user topics for recommendations (in a real app, this would be in a database)
+		// For now, we'll just use the session to store topics
+		
+		return newUser;
+	}
+	
+	public List<Community> getRecommendedCommunities(String[] userTopics) {
+		if (userTopics == null || userTopics.length == 0) {
+			return getAllCommunities();
+		}
+		
+		// Match communities based on topics
+		List<Community> recommended = new ArrayList<>();
+		
+		for (Community community : communities) {
+			String communityName = community.getName().toLowerCase();
+			String communityDesc = community.getDescription().toLowerCase();
+			
+			for (String topic : userTopics) {
+				String topicLower = topic.toLowerCase();
+				
+				// Check if topic matches community name or description
+				if (communityName.contains(topicLower) || communityDesc.contains(topicLower)) {
+					recommended.add(community);
+					break; // Don't add same community multiple times
+				}
+			}
+		}
+		
+		// If we have recommendations, return them, otherwise return all communities
+		return recommended.isEmpty() ? getAllCommunities() : recommended;
 	}
 
 	public List<Post> getPostsForCommunity(String communityId) {

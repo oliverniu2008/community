@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>My Profile - SuperM Communities</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body class="ios-theme">
+<div class="profile-container">
+  <!-- Navigation Bar -->
+  <nav class="profile-nav">
+    <div class="nav-content">
+      <a href="/feed" class="nav-back">← Back to Feed</a>
+      <h2>My Profile</h2>
+      <a href="/logout" class="nav-logout">Logout</a>
+    </div>
+  </nav>
+
+  <!-- Profile Card -->
+  <div class="profile-glass-card">
+    <div class="profile-header">
+      <div class="profile-avatar">
+        <span class="avatar-text" th:text="${#strings.substring(user.name, 0, 1)}">O</span>
+      </div>
+      <h1 th:text="${user.fullName}">User Name</h1>
+      <p class="profile-email" th:text="${user.email}">email@example.com</p>
+      <div class="profile-badges">
+        <span th:if="${user.leader}" class="badge badge-leader">Community Leader</span>
+        <span th:unless="${user.leader}" class="badge badge-member">Member</span>
+        <span class="badge badge-status" th:classappend="${user.status == 'Active'} ? 'badge-active' : 'badge-suspended'" 
+              th:text="${user.status}">Active</span>
+      </div>
+    </div>
+
+    <!-- Profile Stats -->
+    <div class="profile-stats">
+      <div class="stat-item">
+        <div class="stat-icon">📅</div>
+        <div class="stat-content">
+          <div class="stat-label">Member Since</div>
+          <div class="stat-value" th:text="${#temporals.format(user.joinDate, 'MMMM dd, yyyy')}">January 15, 2020</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">🆔</div>
+        <div class="stat-content">
+          <div class="stat-label">User ID</div>
+          <div class="stat-value user-id" th:text="${user.id}">super123456789</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invite Friend Section -->
+    <div class="invite-section">
+      <div class="invite-header">
+        <h3>🎉 Invite Friends</h3>
+        <p>Share your personalized invite link and grow the community together</p>
+      </div>
+      
+      <div class="invite-link-container">
+        <div class="invite-link-label">Your Invite Link:</div>
+        <div class="invite-link-box">
+          <input type="text" 
+                 id="inviteLink" 
+                 readonly 
+                 th:value="${inviteLink}"
+                 class="invite-link-input"/>
+          <button onclick="copyInviteLink()" class="copy-btn">
+            <span id="copyIcon">📋</span>
+            <span id="copyText">Copy</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="invite-benefits">
+        <h4>Why invite friends?</h4>
+        <ul class="benefits-list">
+          <li>
+            <span class="benefit-icon">🌟</span>
+            <span>Help grow our supportive community</span>
+          </li>
+          <li>
+            <span class="benefit-icon">🤝</span>
+            <span>Connect with more parents on similar journeys</span>
+          </li>
+          <li>
+            <span class="benefit-icon">📊</span>
+            <span>Track your referrals (coming soon)</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="invite-actions">
+        <button onclick="shareViaEmail()" class="share-btn">
+          <span class="share-icon">📧</span>
+          <span>Share via Email</span>
+        </button>
+        <button onclick="shareViaSocial('twitter')" class="share-btn">
+          <span class="share-icon">🐦</span>
+          <span>Share on Twitter</span>
+        </button>
+        <button onclick="shareViaSocial('facebook')" class="share-btn">
+          <span class="share-icon">👥</span>
+          <span>Share on Facebook</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Additional Info -->
+    <div class="profile-info">
+      <h3>Account Information</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Account Type:</span>
+          <span class="info-value" th:text="${user.leader} ? 'Community Leader' : 'Member'">Member</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Account Status:</span>
+          <span class="info-value" th:text="${user.status}">Active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+const inviteLink = /*[[${inviteLink}]]*/ '';
+const userName = /*[[${user.name}]]*/ '';
+
+function copyInviteLink() {
+  const input = document.getElementById('inviteLink');
+  input.select();
+  input.setSelectionRange(0, 99999); // For mobile devices
+  
+  document.execCommand('copy');
+  
+  // Visual feedback
+  const copyIcon = document.getElementById('copyIcon');
+  const copyText = document.getElementById('copyText');
+  const originalIcon = copyIcon.textContent;
+  const originalText = copyText.textContent;
+  
+  copyIcon.textContent = '✅';
+  copyText.textContent = 'Copied!';
+  
+  setTimeout(() => {
+    copyIcon.textContent = originalIcon;
+    copyText.textContent = originalText;
+  }, 2000);
+}
+
+function shareViaEmail() {
+  const subject = encodeURIComponent('Join me on SuperM Communities!');
+  const body = encodeURIComponent(`Hi!\n\nI've been using SuperM Communities to connect with other parents and thought you might be interested too.\n\nJoin using my invite link:\n${inviteLink}\n\nLooking forward to seeing you there!\n\nBest,\n${userName}`);
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+
+function shareViaSocial(platform) {
+  const text = encodeURIComponent(`Join me on SuperM Communities - a supportive parenting community!`);
+  const url = encodeURIComponent(inviteLink);
+  
+  let shareUrl;
+  if (platform === 'twitter') {
+    shareUrl = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+  } else if (platform === 'facebook') {
+    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+  }
+  
+  window.open(shareUrl, '_blank', 'width=600,height=400');
+}
+/*]]>*/
+</script>
+</body>
+</html>
+

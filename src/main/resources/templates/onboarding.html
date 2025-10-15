@@ -7,6 +7,15 @@
 </head>
 <body class="ios-theme">
 <div class="onboarding-container">
+  <!-- Referral Banner -->
+  <div th:if="${hasReferrer}" class="referral-banner">
+    <div class="referral-icon">🎉</div>
+    <div class="referral-content">
+      <h3>You've been invited!</h3>
+      <p>Join the community recommended by <strong th:text="${referrerName}">Friend</strong></p>
+    </div>
+  </div>
+  
   <div class="onboarding-header">
     <h1>Welcome to SuperM Communities</h1>
     <p>Let's personalize your experience by learning about your journey</p>

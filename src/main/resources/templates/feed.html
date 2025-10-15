@@ -8,28 +8,269 @@
 <body class="ios-theme">
 <header class="topbar">
   <a href="/">Home</a>
-  <a href="/onboarding">Discover New Communities</a>
+  <a href="/ai-assistant">🤖 AI Assistant</a>
+  <a href="/onboarding">Discover Communities</a>
+  <a href="/profile">My Profile</a>
   <button>Create Post</button>
 </header>
-<aside class="sidebar">
-  <h3>Joined Communities</h3>
-  <ul>
-    <li th:each="c : ${communities}"><a th:href="@{'/community/' + ${c.id}}" th:text="${c.name}">Community</a></li>
-  </ul>
-</aside>
-<main class="feed">
-  <article class="post" th:each="p : ${posts}">
-    <div class="avatar">👤</div>
-    <div class="content">
-      <div class="meta"><span th:text="${p.authorName}">Author</span> · <span th:text="${p.createdAt}">time</span></div>
-      <p th:text="${p.content}">content</p>
-      <div class="actions">
-        <button>Like (<span th:text="${p.likes}">0</span>)</button>
-        <button>Comment (<span th:text="${p.comments}">0</span>)</button>
-        <button>Share</button>
+
+<div class="feed-layout">
+  <aside class="sidebar">
+    <!-- AI Feed Insights -->
+    <div class="ai-insights-card">
+      <div class="insights-header">
+        <span class="insights-icon">🧠</span>
+        <strong>AI Feed Insights</strong>
+      </div>
+      <div class="insights-content">
+        <div class="insight-item">
+          <span class="insight-label">Fresh Content:</span>
+          <span class="insight-value" th:text="${feedInsights.freshContentCount}">0</span>
+        </div>
+        <div class="insight-item">
+          <span class="insight-label">Popular Posts:</span>
+          <span class="insight-value" th:text="${feedInsights.popularPostsCount}">0</span>
+        </div>
+        <div class="insight-item" th:if="${userInsights.suggestedCheckInTime}">
+          <span class="insight-label">Best Time:</span>
+          <span class="insight-value-text" th:text="${userInsights.suggestedCheckInTime}">Now</span>
+        </div>
       </div>
     </div>
-  </article>
-</main>
+    
+    <!-- Recommended Communities -->
+    <div th:if="${hasRecommendations}" class="recommendations-badge">
+      <div class="badge-icon">✨</div>
+      <div class="badge-text">
+        <strong>Recommended for You</strong>
+        <p>Based on your interests</p>
+      </div>
+    </div>
+    
+    <h3>Communities</h3>
+    <ul>
+      <li th:each="c : ${communities}"><a th:href="@{'/community/' + ${c.id}}" th:text="${c.name}">Community</a></li>
+    </ul>
+  </aside>
+  
+  <main class="feed">
+    <!-- Feed Tabs -->
+    <div class="feed-tabs">
+      <button class="feed-tab active" onclick="showFeedTab('for-you')" id="tab-for-you">
+        <span class="tab-icon">✨</span>
+        <span>For You</span>
+      </button>
+      <button class="feed-tab" onclick="showFeedTab('trending')" id="tab-trending">
+        <span class="tab-icon">🔥</span>
+        <span>Trending</span>
+      </button>
+      <button class="feed-tab" onclick="showFeedTab('recent')" id="tab-recent">
+        <span class="tab-icon">⚡</span>
+        <span>Recent</span>
+      </button>
+      <button class="feed-tab" onclick="showFeedTab('popular')" id="tab-popular">
+        <span class="tab-icon">⭐</span>
+        <span>Popular</span>
+      </button>
+    </div>
+    
+    <!-- For You Feed (Personalized) -->
+    <div class="feed-content" id="feed-for-you">
+      <div class="feed-header">
+        <h2>✨ Personalized For You</h2>
+        <p>AI-curated content based on your interests and behavior</p>
+      </div>
+      <article class="post" th:each="p : ${categorizedFeed['For You']}" th:data-post-id="${p.id}">
+        <div class="avatar">👤</div>
+        <div class="content">
+          <div class="meta">
+            <span th:text="${p.authorName}">Author</span> · 
+            <span th:text="${p.createdAt}">time</span>
+            <span class="ai-badge">🤖 AI Selected</span>
+          </div>
+          <p th:text="${p.content}">content</p>
+          <div class="actions">
+            <button class="action-like" th:data-post-id="${p.id}" onclick="likePost(this.dataset.postId)">
+              <span class="action-icon">❤️</span>
+              <span th:text="${p.likes}">0</span>
+            </button>
+            <button>
+              <span class="action-icon">💬</span>
+              <span th:text="${p.comments}">0</span>
+            </button>
+            <button>
+              <span class="action-icon">📤</span>
+              <span>Share</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+    
+    <!-- Trending Feed -->
+    <div class="feed-content" id="feed-trending" style="display: none;">
+      <div class="feed-header">
+        <h2>🔥 Trending Now</h2>
+        <p>Hot discussions happening right now</p>
+      </div>
+      <article class="post" th:each="p : ${categorizedFeed['Trending']}" th:data-post-id="${p.id}">
+        <div class="avatar">👤</div>
+        <div class="content">
+          <div class="meta">
+            <span th:text="${p.authorName}">Author</span> · 
+            <span th:text="${p.createdAt}">time</span>
+            <span class="trending-badge">🔥 Trending</span>
+          </div>
+          <p th:text="${p.content}">content</p>
+          <div class="actions">
+            <button class="action-like" th:data-post-id="${p.id}" onclick="likePost(this.dataset.postId)">
+              <span class="action-icon">❤️</span>
+              <span th:text="${p.likes}">0</span>
+            </button>
+            <button>
+              <span class="action-icon">💬</span>
+              <span th:text="${p.comments}">0</span>
+            </button>
+            <button>
+              <span class="action-icon">📤</span>
+              <span>Share</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+    
+    <!-- Recent Feed -->
+    <div class="feed-content" id="feed-recent" style="display: none;">
+      <div class="feed-header">
+        <h2>⚡ Recent Posts</h2>
+        <p>Latest updates from your communities</p>
+      </div>
+      <article class="post" th:each="p : ${categorizedFeed['Recent']}" th:data-post-id="${p.id}">
+        <div class="avatar">👤</div>
+        <div class="content">
+          <div class="meta">
+            <span th:text="${p.authorName}">Author</span> · 
+            <span th:text="${p.createdAt}">time</span>
+            <span class="recent-badge">⚡ New</span>
+          </div>
+          <p th:text="${p.content}">content</p>
+          <div class="actions">
+            <button class="action-like" th:data-post-id="${p.id}" onclick="likePost(this.dataset.postId)">
+              <span class="action-icon">❤️</span>
+              <span th:text="${p.likes}">0</span>
+            </button>
+            <button>
+              <span class="action-icon">💬</span>
+              <span th:text="${p.comments}">0</span>
+            </button>
+            <button>
+              <span class="action-icon">📤</span>
+              <span>Share</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+    
+    <!-- Popular Feed -->
+    <div class="feed-content" id="feed-popular" style="display: none;">
+      <div class="feed-header">
+        <h2>⭐ Most Popular</h2>
+        <p>Top-rated content from the community</p>
+      </div>
+      <article class="post" th:each="p : ${categorizedFeed['Popular']}" th:data-post-id="${p.id}">
+        <div class="avatar">👤</div>
+        <div class="content">
+          <div class="meta">
+            <span th:text="${p.authorName}">Author</span> · 
+            <span th:text="${p.createdAt}">time</span>
+            <span class="popular-badge">⭐ Popular</span>
+          </div>
+          <p th:text="${p.content}">content</p>
+          <div class="actions">
+            <button class="action-like" th:data-post-id="${p.id}" onclick="likePost(this.dataset.postId)">
+              <span class="action-icon">❤️</span>
+              <span th:text="${p.likes}">0</span>
+            </button>
+            <button>
+              <span class="action-icon">💬</span>
+              <span th:text="${p.comments}">0</span>
+            </button>
+            <button>
+              <span class="action-icon">📤</span>
+              <span>Share</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </main>
+</div>
+
+<script>
+// Feed tab switching
+function showFeedTab(tabName) {
+  // Hide all feeds
+  document.querySelectorAll('.feed-content').forEach(feed => {
+    feed.style.display = 'none';
+  });
+  
+  // Remove active class from all tabs
+  document.querySelectorAll('.feed-tab').forEach(tab => {
+    tab.classList.remove('active');
+  });
+  
+  // Show selected feed
+  document.getElementById('feed-' + tabName).style.display = 'block';
+  
+  // Add active class to selected tab
+  document.getElementById('tab-' + tabName).classList.add('active');
+}
+
+// Track post views (when post appears in viewport)
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const postId = entry.target.dataset.postId;
+      if (postId) {
+        trackView(postId);
+        observer.unobserve(entry.target); // Only track once
+      }
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('.post').forEach(post => {
+  observer.observe(post);
+});
+
+async function trackView(postId) {
+  try {
+    await fetch('/feed/track-view', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId: postId })
+    });
+  } catch (error) {
+    console.error('Error tracking view:', error);
+  }
+}
+
+async function likePost(postId) {
+  try {
+    await fetch('/feed/track-like', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ postId: postId })
+    });
+    
+    // Visual feedback
+    event.target.closest('button').classList.add('liked');
+  } catch (error) {
+    console.error('Error tracking like:', error);
+  }
+}
+</script>
 </body>
 </html>

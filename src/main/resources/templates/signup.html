@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Sign Up - SuperM Communities</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body class="ios-theme">
+<div class="signup-container">
+  <!-- Referral Banner -->
+  <div th:if="${hasReferrer}" class="referral-banner">
+    <div class="referral-icon">🎉</div>
+    <div class="referral-content">
+      <h3>You've been invited!</h3>
+      <p>Join the community recommended by <strong th:text="${referrerName}">Friend</strong></p>
+    </div>
+  </div>
+
+  <div class="signup-glass-card">
+    <div class="signup-header">
+      <h1>Join SuperM Communities</h1>
+      <p>Create your account and connect with parents like you</p>
+    </div>
+    
+    <div th:if="${error}" class="signup-error">
+      <span class="error-icon">⚠️</span>
+      <span th:text="${error}">Error message</span>
+    </div>
+    
+    <form method="post" action="/signup" class="signup-form">
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" 
+               id="email" 
+               name="email" 
+               placeholder="Enter your email" 
+               required 
+               autofocus/>
+      </div>
+      
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" 
+               id="password" 
+               name="password" 
+               placeholder="Create a password (min 6 characters)" 
+               minlength="6"
+               required/>
+      </div>
+      
+      <!-- Full Name -->
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" 
+               id="fullName" 
+               name="fullName" 
+               placeholder="Enter your full name" 
+               required/>
+      </div>
+      
+      <!-- Topics Selection -->
+      <div class="form-section">
+        <h3>Select Your Topics of Interest</h3>
+        <p class="section-subtitle">Choose 3 topics that matter most to you</p>
+        
+        <div class="topics-selection-grid">
+          <label class="topic-checkbox-card">
+            <input type="checkbox" name="topics" value="Sleep Training" class="topic-checkbox"/>
+            <div class="topic-checkbox-content">
+              <div class="topic-icon">😴</div>
+              <div class="topic-name">Sleep Training</div>
+            </div>
+          </label>
+          
+          <label class="topic-checkbox-card">
+            <input type="checkbox" name="topics" value="Nutrition" class="topic-checkbox"/>
+            <div class="topic-checkbox-content">
+              <div class="topic-icon">🥗</div>
+              <div class="topic-name">Nutrition</div>
+            </div>
+          </label>
+          
+          <label class="topic-checkbox-card">
+            <input type="checkbox" name="topics" value="Special Needs" class="topic-checkbox"/>
+            <div class="topic-checkbox-content">
+              <div class="topic-icon">❤️</div>
+              <div class="topic-name">Special Needs</div>
+            </div>
+          </label>
+          
+          <label class="topic-checkbox-card">
+            <input type="checkbox" name="topics" value="Postpartum Health" class="topic-checkbox"/>
+            <div class="topic-checkbox-content">
+              <div class="topic-icon">💪</div>
+              <div class="topic-name">Postpartum Health</div>
+            </div>
+          </label>
+          
+          <label class="topic-checkbox-card">
+            <input type="checkbox" name="topics" value="Behavior" class="topic-checkbox"/>
+            <div class="topic-checkbox-content">
+              <div class="topic-icon">🎭</div>
+              <div class="topic-name">Behavior</div>
+            </div>
+          </label>
+          
+          <label class="topic-checkbox-card">
+            <input type="checkbox" name="topics" value="Development" class="topic-checkbox"/>
+            <div class="topic-checkbox-content">
+              <div class="topic-icon">🧠</div>
+              <div class="topic-name">Development</div>
+            </div>
+          </label>
+          
+          <label class="topic-checkbox-card">
+            <input type="checkbox" name="topics" value="Pregnancy" class="topic-checkbox"/>
+            <div class="topic-checkbox-content">
+              <div class="topic-icon">🤰</div>
+              <div class="topic-name">Pregnancy</div>
+            </div>
+          </label>
+          
+          <label class="topic-checkbox-card">
+            <input type="checkbox" name="topics" value="ADHD" class="topic-checkbox"/>
+            <div class="topic-checkbox-content">
+              <div class="topic-icon">⚡</div>
+              <div class="topic-name">ADHD</div>
+            </div>
+          </label>
+          
+          <label class="topic-checkbox-card">
+            <input type="checkbox" name="topics" value="Fitness" class="topic-checkbox"/>
+            <div class="topic-checkbox-content">
+              <div class="topic-icon">🏃</div>
+              <div class="topic-name">Fitness</div>
+            </div>
+          </label>
+          
+          <label class="topic-checkbox-card">
+            <input type="checkbox" name="topics" value="Mental Health" class="topic-checkbox"/>
+            <div class="topic-checkbox-content">
+              <div class="topic-icon">🧘</div>
+              <div class="topic-name">Mental Health</div>
+            </div>
+          </label>
+          
+          <label class="topic-checkbox-card">
+            <input type="checkbox" name="topics" value="Education" class="topic-checkbox"/>
+            <div class="topic-checkbox-content">
+              <div class="topic-icon">📚</div>
+              <div class="topic-name">Education</div>
+            </div>
+          </label>
+          
+          <label class="topic-checkbox-card">
+            <input type="checkbox" name="topics" value="Safety" class="topic-checkbox"/>
+            <div class="topic-checkbox-content">
+              <div class="topic-icon">🛡️</div>
+              <div class="topic-name">Safety</div>
+            </div>
+          </label>
+        </div>
+        
+        <div id="topicError" class="topic-error" style="display: none;">
+          Please select exactly 3 topics
+        </div>
+      </div>
+      
+      <button type="submit" class="signup-btn">
+        <span>Create Account</span>
+        <div class="btn-icon">→</div>
+      </button>
+    </form>
+    
+    <div class="signup-footer">
+      <p>Already have an account? <a href="/login">Log in here</a></p>
+      <p><a href="/">← Back to Home</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+// Topic selection validation (exactly 3)
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('.signup-form');
+  const checkboxes = document.querySelectorAll('.topic-checkbox');
+  const topicError = document.getElementById('topicError');
+  
+  // Update card styling when checked
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const card = this.closest('.topic-checkbox-card');
+      if (this.checked) {
+        card.classList.add('selected');
+      } else {
+        card.classList.remove('selected');
+      }
+      
+      // Check count
+      const checkedCount = document.querySelectorAll('.topic-checkbox:checked').length;
+      if (checkedCount > 3) {
+        this.checked = false;
+        card.classList.remove('selected');
+        topicError.style.display = 'block';
+        setTimeout(() => {
+          topicError.style.display = 'none';
+        }, 3000);
+      }
+    });
+  });
+  
+  // Form validation
+  form.addEventListener('submit', function(e) {
+    const checkedCount = document.querySelectorAll('.topic-checkbox:checked').length;
+    if (checkedCount !== 3) {
+      e.preventDefault();
+      topicError.textContent = checkedCount < 3 ? 
+        `Please select ${3 - checkedCount} more topic(s)` : 
+        'Please select exactly 3 topics';
+      topicError.style.display = 'block';
+      topicError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return false;
+    }
+  });
+  
+  // Form input focus effects
+  const inputs = document.querySelectorAll('.signup-form input[type="email"], .signup-form input[type="password"], .signup-form input[type="text"]');
+  inputs.forEach(input => {
+    input.addEventListener('focus', function() {
+      this.parentElement.classList.add('focused');
+    });
+    
+    input.addEventListener('blur', function() {
+      if (!this.value) {
+        this.parentElement.classList.remove('focused');
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>
+
