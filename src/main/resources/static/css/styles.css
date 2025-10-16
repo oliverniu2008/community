@@ -5305,6 +5305,389 @@ body.admin-theme {
   }
 }
 
+/* ===== Enhanced Rewards Console ===== */
+.admin-theme .rewards-console {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-theme .console-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.admin-theme .console-header h2 {
+  font-size: 2.5rem;
+  font-weight: var(--ios-weight-bold);
+  color: var(--ios-text);
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--ios-primary), var(--ios-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.admin-theme .console-header p {
+  font-size: 1.125rem;
+  color: var(--ios-text-light);
+}
+
+/* Leaders Table */
+.admin-theme .leaders-table-container {
+  background: var(--ios-bg-glass);
+  backdrop-filter: var(--ios-blur);
+  -webkit-backdrop-filter: var(--ios-blur);
+  border: 1px solid var(--ios-border-light);
+  border-radius: var(--ios-radius);
+  margin-bottom: 32px;
+  box-shadow: var(--ios-shadow);
+  overflow: hidden;
+}
+
+.admin-theme .table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, 
+    rgba(0, 122, 255, 0.1) 0%, 
+    rgba(88, 86, 214, 0.05) 100%);
+  border-bottom: 1px solid var(--ios-border-light);
+}
+
+.admin-theme .table-header h3 {
+  font-size: 1.25rem;
+  font-weight: var(--ios-weight-semibold);
+  color: var(--ios-text);
+  margin: 0;
+}
+
+.admin-theme .bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-theme .selection-count {
+  font-size: 0.875rem;
+  font-weight: var(--ios-weight-medium);
+  color: var(--ios-text-light);
+  background: var(--ios-bg-alt);
+  padding: 6px 12px;
+  border-radius: var(--ios-radius-small);
+  border: 1px solid var(--ios-border);
+}
+
+/* Enhanced Table Styling */
+.admin-theme .leaders-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-theme .leaders-table th {
+  background: var(--ios-bg-alt);
+  padding: 16px 20px;
+  text-align: left;
+  font-weight: var(--ios-weight-semibold);
+  color: var(--ios-text);
+  border-bottom: 1px solid var(--ios-border-light);
+  font-size: 0.875rem;
+}
+
+.admin-theme .leaders-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ios-border-light);
+  vertical-align: middle;
+}
+
+.admin-theme .leaders-table tr:hover {
+  background: rgba(0, 122, 255, 0.02);
+}
+
+.admin-theme .checkbox-col {
+  width: 50px;
+  text-align: center;
+}
+
+.admin-theme .checkbox-col input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ios-primary);
+  cursor: pointer;
+}
+
+/* Leader Info */
+.admin-theme .leader-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-theme .leader-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--ios-primary), var(--ios-secondary));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.admin-theme .leader-details {
+  flex: 1;
+}
+
+.admin-theme .leader-name {
+  font-weight: var(--ios-weight-semibold);
+  color: var(--ios-text);
+  margin-bottom: 2px;
+}
+
+.admin-theme .leader-email {
+  font-size: 0.875rem;
+  color: var(--ios-text-light);
+}
+
+/* Communities */
+.admin-theme .community-list {
+  font-size: 0.875rem;
+  color: var(--ios-text-secondary);
+  max-width: 200px;
+  line-height: 1.4;
+}
+
+/* Performance */
+.admin-theme .performance-score {
+  font-weight: var(--ios-weight-semibold);
+  color: var(--ios-primary);
+  background: rgba(0, 122, 255, 0.1);
+  padding: 6px 12px;
+  border-radius: var(--ios-radius-small);
+  display: inline-block;
+}
+
+/* Estimated Reward */
+.admin-theme .reward-amount {
+  font-size: 0.875rem;
+  font-weight: var(--ios-weight-medium);
+  color: var(--ios-text);
+}
+
+.admin-theme .dollar-amount {
+  color: #34C759;
+  font-weight: var(--ios-weight-semibold);
+}
+
+.admin-theme .token-amount {
+  color: #FF9500;
+  font-weight: var(--ios-weight-semibold);
+}
+
+/* Payout Configuration */
+.admin-theme .payout-config {
+  background: var(--ios-bg-glass);
+  backdrop-filter: var(--ios-blur);
+  -webkit-backdrop-filter: var(--ios-blur);
+  border: 1px solid var(--ios-border-light);
+  border-radius: var(--ios-radius);
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: var(--ios-shadow);
+}
+
+.admin-theme .payout-config h3 {
+  font-size: 1.5rem;
+  font-weight: var(--ios-weight-semibold);
+  color: var(--ios-text);
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.admin-theme .config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.admin-theme .config-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-theme .config-item label {
+  font-size: 0.875rem;
+  font-weight: var(--ios-weight-medium);
+  color: var(--ios-text);
+}
+
+.admin-theme .input-group {
+  display: flex;
+  align-items: center;
+  background: var(--ios-bg-alt);
+  border: 1px solid var(--ios-border);
+  border-radius: var(--ios-radius);
+  overflow: hidden;
+}
+
+.admin-theme .input-group .currency {
+  padding: 12px 16px;
+  background: var(--ios-bg-glass);
+  color: var(--ios-text-light);
+  font-weight: var(--ios-weight-semibold);
+  border-right: 1px solid var(--ios-border);
+}
+
+.admin-theme .input-group input {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: var(--ios-text);
+  font-size: 1rem;
+  font-weight: var(--ios-weight-medium);
+}
+
+.admin-theme .input-group .unit {
+  padding: 12px 16px;
+  color: var(--ios-text-light);
+  font-size: 0.875rem;
+  background: var(--ios-bg-glass);
+  border-left: 1px solid var(--ios-border);
+}
+
+.admin-theme .input-group input:focus {
+  outline: none;
+}
+
+/* Payout Summary */
+.admin-theme .payout-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.admin-theme .summary-card {
+  background: linear-gradient(135deg, 
+    rgba(0, 122, 255, 0.1) 0%, 
+    rgba(88, 86, 214, 0.05) 100%);
+  border: 1px solid var(--ios-border-light);
+  border-radius: var(--ios-radius);
+  padding: 20px;
+  text-align: center;
+}
+
+.admin-theme .summary-card h4 {
+  font-size: 0.875rem;
+  font-weight: var(--ios-weight-medium);
+  color: var(--ios-text-light);
+  margin-bottom: 8px;
+}
+
+.admin-theme .summary-value {
+  font-size: 2rem;
+  font-weight: var(--ios-weight-bold);
+  color: var(--ios-text);
+}
+
+/* Payout Actions */
+.admin-theme .payout-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.admin-theme .btn-large {
+  padding: 16px 32px;
+  font-size: 1.125rem;
+  font-weight: var(--ios-weight-semibold);
+}
+
+.admin-theme .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Reward Log */
+.admin-theme .reward-log {
+  background: var(--ios-bg-glass);
+  backdrop-filter: var(--ios-blur);
+  -webkit-backdrop-filter: var(--ios-blur);
+  border: 1px solid var(--ios-border-light);
+  border-radius: var(--ios-radius);
+  padding: 24px;
+  box-shadow: var(--ios-shadow);
+}
+
+.admin-theme .reward-log h3 {
+  font-size: 1.25rem;
+  font-weight: var(--ios-weight-semibold);
+  color: var(--ios-text);
+  margin-bottom: 16px;
+}
+
+.admin-theme .log-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.admin-theme .log-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-theme .log-item {
+  padding: 12px 16px;
+  background: var(--ios-bg-alt);
+  border: 1px solid var(--ios-border-light);
+  border-radius: var(--ios-radius-small);
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+  color: var(--ios-text-secondary);
+}
+
+.admin-theme .log-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+  .admin-theme .config-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-theme .payout-summary {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-theme .payout-actions {
+    flex-direction: column;
+  }
+  
+  .admin-theme .table-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  
+  .admin-theme .leaders-table {
+    font-size: 0.875rem;
+  }
+  
+  .admin-theme .leaders-table th,
+  .admin-theme .leaders-table td {
+    padding: 12px 16px;
+  }
+}
+
 /* ===== AI Assistant Chat Interface ===== */
 .ios-theme .ai-assistant-container {
   min-height: 100vh;

@@ -6,32 +6,316 @@
   <link rel="stylesheet" href="/css/styles.css"/>
 </head>
 <body class="admin-theme">
-<h1>Leaders & Rewards</h1>
-<section>
-  <h2>Leader List</h2>
-  <table>
-    <tr><th>Name</th><th>Email</th><th>Assigned Communities</th><th>Performance</th></tr>
-    <tr th:each="l : ${leaders}">
-      <td th:text="${l.name}">Name</td>
-      <td th:text="${l.email}">Email</td>
-      <td th:text="${assigned != null && assigned.containsKey(l.name) ? assigned[l.name] : '—'}">—</td>
-      <td th:text="${performance != null && performance.containsKey(l.name) ? performance[l.name] : 0}">—</td>
-    </tr>
-  </table>
-</section>
-<section>
-  <h2>Rewards Console</h2>
-  <form method="post" action="/admin/rewards/payouts">
-    <label>Rule: $<input name="dollars" value="5" size="3"/> per new member</label>
-    <label>Tokens: <input name="tokens" value="10" size="3"/> per 100 engagements</label>
-    <div><button type="submit">Process Payouts</button> <small>(prototype)</small></div>
-  </form>
-  <div th:if="${rewards}">
-    <h3>Reward Log</h3>
-    <ul>
-      <li th:each="r : ${rewards}" th:text="${r}">log</li>
-    </ul>
-  </div>
-</section>
+<div class="admin-container">
+  <header class="admin-header">
+    <h1>Leaders & Rewards Console</h1>
+    <nav class="admin-nav">
+      <a href="/admin/users" class="nav-tab">
+        <span class="nav-icon">👥</span>
+        <span class="nav-text">Users</span>
+      </a>
+      <a href="/admin/communities" class="nav-tab">
+        <span class="nav-icon">🏘️</span>
+        <span class="nav-text">Communities</span>
+      </a>
+      <a href="/admin/leaders" class="nav-tab active">
+        <span class="nav-icon">⭐</span>
+        <span class="nav-text">Leaders & Rewards</span>
+      </a>
+      <a href="/admin/moderation" class="nav-tab">
+        <span class="nav-icon">🛡️</span>
+        <span class="nav-text">Moderation</span>
+      </a>
+      <a href="/admin/analytics" class="nav-tab">
+        <span class="nav-icon">📊</span>
+        <span class="nav-text">Analytics</span>
+      </a>
+      <a href="/admin/content-generator" class="nav-tab">
+        <span class="nav-icon">🤖</span>
+        <span class="nav-text">Content Generator</span>
+      </a>
+    </nav>
+  </header>
+
+  <section class="rewards-console">
+    <div class="console-header">
+      <h2>💰 Rewards Console</h2>
+      <p>Select leaders and configure payout rules</p>
+    </div>
+    
+    <!-- Leader Selection Table -->
+    <div class="leaders-table-container">
+      <div class="table-header">
+        <h3>Leader Selection</h3>
+        <div class="bulk-actions">
+          <button type="button" class="btn btn-secondary" onclick="selectAll()">Select All</button>
+          <button type="button" class="btn btn-secondary" onclick="deselectAll()">Deselect All</button>
+          <span class="selection-count">0 selected</span>
+        </div>
+      </div>
+      
+      <table class="leaders-table">
+        <thead>
+          <tr>
+            <th class="checkbox-col">
+              <input type="checkbox" id="select-all-checkbox" onchange="toggleSelectAll()">
+            </th>
+            <th>Leader</th>
+            <th>Communities</th>
+            <th>Performance</th>
+            <th>Estimated Reward</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="l : ${leaders}">
+            <td class="checkbox-col">
+              <input type="checkbox" class="leader-checkbox" th:value="${l.id}" th:id="'leader-' + ${l.id}" onchange="updateSelection()">
+            </td>
+            <td class="leader-info">
+              <div class="leader-avatar">👤</div>
+              <div class="leader-details">
+                <div class="leader-name" th:text="${l.name}">Name</div>
+                <div class="leader-email" th:text="${l.email}">Email</div>
+              </div>
+            </td>
+            <td class="communities">
+              <div class="community-list" th:text="${assigned != null && assigned.containsKey(l.name) ? assigned[l.name] : 'No communities assigned'}">
+                Communities
+              </div>
+            </td>
+            <td class="performance">
+              <div class="performance-score" th:text="${performance != null && performance.containsKey(l.name) ? performance[l.name] + ' posts' : '0 posts'}">
+                0 posts
+              </div>
+            </td>
+            <td class="estimated-reward">
+              <div class="reward-amount" th:data-performance="${performance != null && performance.containsKey(l.name) ? performance[l.name] : 0}">
+                $<span class="dollar-amount">0</span> + <span class="token-amount">0</span> tokens
+              </div>
+            </td>
+            <td class="actions">
+              <button type="button" class="btn btn-sm btn-primary" th:data-leader-id="${l.id}" onclick="payoutIndividual(this.dataset.leaderId)">
+                Pay Now
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Payout Configuration -->
+    <div class="payout-config">
+      <h3>💰 Payout Rules</h3>
+      <form method="post" action="/admin/rewards/payouts" id="payout-form">
+        <div class="config-grid">
+          <div class="config-item">
+            <label for="dollars">Dollar Rate</label>
+            <div class="input-group">
+              <span class="currency">$</span>
+              <input type="number" id="dollars" name="dollars" value="5" min="0" max="100" onchange="updateEstimates()">
+              <span class="unit">per post</span>
+            </div>
+          </div>
+          <div class="config-item">
+            <label for="tokens">Token Rate</label>
+            <div class="input-group">
+              <input type="number" id="tokens" name="tokens" value="10" min="0" max="1000" onchange="updateEstimates()">
+              <span class="unit">per engagement</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Hidden field for selected leaders -->
+        <input type="hidden" id="selected-leaders" name="selectedLeaders" value="">
+        
+        <div class="payout-summary">
+          <div class="summary-card">
+            <h4>Selected Leaders</h4>
+            <div class="summary-value" id="selected-count">0</div>
+          </div>
+          <div class="summary-card">
+            <h4>Total Payout</h4>
+            <div class="summary-value" id="total-payout">$0</div>
+          </div>
+          <div class="summary-card">
+            <h4>Total Tokens</h4>
+            <div class="summary-value" id="total-tokens">0</div>
+          </div>
+        </div>
+        
+        <div class="payout-actions">
+          <button type="submit" class="btn btn-primary btn-large" id="process-payout-btn" disabled>
+            <span class="btn-icon">💸</span>
+            Process Selected Payouts
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="previewPayouts()">
+            <span class="btn-icon">👁️</span>
+            Preview Payouts
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Reward Log -->
+    <div class="reward-log" th:if="${rewards}">
+      <h3>📋 Recent Payouts</h3>
+      <div class="log-container">
+        <ul class="log-list">
+          <li th:each="r : ${rewards}" class="log-item">
+            <span class="log-time" th:text="${r}">log</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// Global variables
+let selectedLeaders = new Set();
+let allLeaders = [];
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  // Get all leader IDs
+  document.querySelectorAll('.leader-checkbox').forEach(checkbox => {
+    allLeaders.push(checkbox.value);
+  });
+  
+  updateEstimates();
+  updateSelection();
+});
+
+// Toggle select all
+function toggleSelectAll() {
+  const selectAllCheckbox = document.getElementById('select-all-checkbox');
+  const leaderCheckboxes = document.querySelectorAll('.leader-checkbox');
+  
+  leaderCheckboxes.forEach(checkbox => {
+    checkbox.checked = selectAllCheckbox.checked;
+  });
+  
+  updateSelection();
+}
+
+// Select all leaders
+function selectAll() {
+  document.querySelectorAll('.leader-checkbox').forEach(checkbox => {
+    checkbox.checked = true;
+  });
+  document.getElementById('select-all-checkbox').checked = true;
+  updateSelection();
+}
+
+// Deselect all leaders
+function deselectAll() {
+  document.querySelectorAll('.leader-checkbox').forEach(checkbox => {
+    checkbox.checked = false;
+  });
+  document.getElementById('select-all-checkbox').checked = false;
+  updateSelection();
+}
+
+// Update selection count and form state
+function updateSelection() {
+  const checkedBoxes = document.querySelectorAll('.leader-checkbox:checked');
+  selectedLeaders.clear();
+  
+  checkedBoxes.forEach(checkbox => {
+    selectedLeaders.add(checkbox.value);
+  });
+  
+  // Update UI
+  document.getElementById('selected-count').textContent = selectedLeaders.size;
+  document.querySelector('.selection-count').textContent = selectedLeaders.size + ' selected';
+  
+  // Enable/disable payout button
+  const payoutBtn = document.getElementById('process-payout-btn');
+  payoutBtn.disabled = selectedLeaders.size === 0;
+  
+  // Update hidden field
+  document.getElementById('selected-leaders').value = Array.from(selectedLeaders).join(',');
+  
+  // Update estimates
+  updateEstimates();
+}
+
+// Update reward estimates
+function updateEstimates() {
+  const dollarRate = parseInt(document.getElementById('dollars').value) || 0;
+  const tokenRate = parseInt(document.getElementById('tokens').value) || 0;
+  
+  let totalDollars = 0;
+  let totalTokens = 0;
+  
+  document.querySelectorAll('.leader-checkbox:checked').forEach(checkbox => {
+    const row = checkbox.closest('tr');
+    const performance = parseInt(row.querySelector('.performance-score').textContent) || 0;
+    const posts = performance;
+    
+    const dollars = posts * dollarRate;
+    const tokens = posts * tokenRate;
+    
+    totalDollars += dollars;
+    totalTokens += tokens;
+    
+    // Update individual estimate
+    row.querySelector('.dollar-amount').textContent = dollars;
+    row.querySelector('.token-amount').textContent = tokens;
+  });
+  
+  // Update summary
+  document.getElementById('total-payout').textContent = '$' + totalDollars;
+  document.getElementById('total-tokens').textContent = totalTokens;
+}
+
+// Individual payout
+function payoutIndividual(leaderId) {
+  // Clear all selections
+  deselectAll();
+  
+  // Select only this leader
+  const checkbox = document.getElementById('leader-' + leaderId);
+  if (checkbox) {
+    checkbox.checked = true;
+    updateSelection();
+    
+    // Submit form
+    document.getElementById('payout-form').submit();
+  }
+}
+
+// Preview payouts
+function previewPayouts() {
+  const selectedCount = selectedLeaders.size;
+  const totalPayout = document.getElementById('total-payout').textContent;
+  const totalTokens = document.getElementById('total-tokens').textContent;
+  
+  if (selectedCount === 0) {
+    alert('Please select at least one leader to preview payouts.');
+    return;
+  }
+  
+  alert(`Payout Preview:\n\nSelected Leaders: ${selectedCount}\nTotal Payout: ${totalPayout}\nTotal Tokens: ${totalTokens}\n\nClick "Process Selected Payouts" to confirm.`);
+}
+
+// Form validation
+document.getElementById('payout-form').addEventListener('submit', function(e) {
+  if (selectedLeaders.size === 0) {
+    e.preventDefault();
+    alert('Please select at least one leader to process payouts.');
+    return false;
+  }
+  
+  const totalPayout = document.getElementById('total-payout').textContent;
+  const totalTokens = document.getElementById('total-tokens').textContent;
+  
+  if (!confirm(`Confirm Payout:\n\nSelected Leaders: ${selectedLeaders.size}\nTotal Payout: ${totalPayout}\nTotal Tokens: ${totalTokens}\n\nThis action cannot be undone.`)) {
+    e.preventDefault();
+    return false;
+  }
+});
+</script>
 </body>
 </html>

@@ -100,11 +100,15 @@ public String leaders(Model model) {
 	@PostMapping("/admin/rewards/payouts")
 public String processPayouts(@RequestParam("dollars") int dollars,
         @RequestParam("tokens") int tokens,
+        @RequestParam(value = "selectedLeaders", required = false) String selectedLeadersStr,
         Model model) {
-    var leaders = data.getAllUsers().stream().filter(u -> u.isLeader()).toList();
+    
+    // Get all leaders for display
+    var allLeaders = data.getAllUsers().stream().filter(u -> u.isLeader()).toList();
     java.util.Map<String, String> assigned = new java.util.HashMap<>();
     java.util.Map<String, Integer> performance = new java.util.HashMap<>();
-    for (var u : leaders) {
+    
+    for (var u : allLeaders) {
         var led = data.getAllCommunities().stream().filter(c -> c.getLeaderName().equals(u.getName())).toList();
         String names = led.stream().map(c -> c.getName()).reduce((a,b) -> a + ", " + b).orElse("");
         assigned.put(u.getName(), names);
@@ -112,10 +116,47 @@ public String processPayouts(@RequestParam("dollars") int dollars,
         int posts = (int) data.getAllPosts().stream().filter(p -> ids.contains(p.getCommunityId())).count();
         performance.put(u.getName(), posts);
     }
-    model.addAttribute("leaders", leaders);
+    
+    // Process payouts for selected leaders only
+    java.util.List<String> processedRewards = new java.util.ArrayList<>();
+    
+    if (selectedLeadersStr != null && !selectedLeadersStr.trim().isEmpty()) {
+        String[] selectedLeaderIds = selectedLeadersStr.split(",");
+        int selectedCount = 0;
+        int totalDollars = 0;
+        int totalTokens = 0;
+        
+        for (String leaderIdStr : selectedLeaderIds) {
+            final String leaderId = leaderIdStr.trim();
+            if (!leaderId.isEmpty()) {
+                var leader = allLeaders.stream().filter(u -> u.getId().equals(leaderId)).findFirst().orElse(null);
+                if (leader != null) {
+                    selectedCount++;
+                    int leaderPosts = performance.getOrDefault(leader.getName(), 0);
+                    int leaderDollars = leaderPosts * dollars;
+                    int leaderTokens = leaderPosts * tokens;
+                    totalDollars += leaderDollars;
+                    totalTokens += leaderTokens;
+                    
+                    processedRewards.add("Processed payout for " + leader.getName() + 
+                        ": $" + leaderDollars + " + " + leaderTokens + " tokens (" + leaderPosts + " posts)");
+                }
+            }
+        }
+        
+        if (selectedCount > 0) {
+            processedRewards.add(0, "BULK PAYOUT: Processed $" + totalDollars + " and " + totalTokens + " tokens for " + selectedCount + " selected leaders.");
+            data.processPayouts(dollars, tokens); // Add to reward log
+        }
+    } else {
+        // Fallback to original behavior if no leaders selected
+        processedRewards.addAll(data.processPayouts(dollars, tokens));
+    }
+    
+    model.addAttribute("leaders", allLeaders);
     model.addAttribute("assigned", assigned);
     model.addAttribute("performance", performance);
-    model.addAttribute("rewards", data.processPayouts(dollars, tokens));
+    model.addAttribute("rewards", processedRewards);
     return "admin-leaders";
 }
 
