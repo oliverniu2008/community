@@ -19,8 +19,14 @@ echo "📦 Installing Python dependencies..."
 pip3 install -r requirements.txt
 
 # Check if Streamlit is installed
-if ! command -v streamlit &> /dev/null; then
+if ! python3 -c "import streamlit" &> /dev/null; then
     echo "❌ Streamlit installation failed. Please check your Python environment."
+    exit 1
+fi
+
+# Check if Streamlit can be run as module
+if ! python3 -m streamlit --version &> /dev/null; then
+    echo "❌ Streamlit module execution failed. Please check your Python environment."
     exit 1
 fi
 

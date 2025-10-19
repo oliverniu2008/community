@@ -189,6 +189,92 @@
       </div>
     </div>
 
+    <!-- Create New Planning Session -->
+    <div class="create-session-section">
+      <div class="session-header">
+        <h3>🎯 Create New Planning Session</h3>
+        <button type="button" class="btn btn-secondary" onclick="loadExampleQueries()">
+          <span class="btn-icon">💡</span>
+          Load Examples
+        </button>
+      </div>
+      
+      <div class="session-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="query-input">Activity Query</label>
+            <input type="text" id="query-input" placeholder="e.g., Find indoor activities for my 3-year-old in Singapore" />
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="child-age">Child Age</label>
+            <select id="child-age">
+              <option value="">Select age</option>
+              <option value="1">1 year old</option>
+              <option value="2">2 years old</option>
+              <option value="3">3 years old</option>
+              <option value="4">4 years old</option>
+              <option value="5">5 years old</option>
+              <option value="6">6 years old</option>
+              <option value="7">7 years old</option>
+              <option value="8">8 years old</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" placeholder="e.g., Singapore, Tokyo, London" />
+          </div>
+          
+          <div class="form-group">
+            <label for="activity-type">Activity Type</label>
+            <select id="activity-type">
+              <option value="">Select type</option>
+              <option value="indoor">Indoor</option>
+              <option value="outdoor">Outdoor</option>
+              <option value="educational">Educational</option>
+              <option value="creative">Creative</option>
+              <option value="sports">Sports</option>
+              <option value="music">Music</option>
+              <option value="general">General</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" onclick="createPlanningSession()">
+            <span class="btn-icon">🚀</span>
+            Create Planning Session
+          </button>
+        </div>
+      </div>
+      
+      <div id="example-queries" class="example-queries-section" style="display: none;">
+        <h4>💡 Example Queries</h4>
+        <div id="example-queries-list" class="example-queries-list"></div>
+      </div>
+    </div>
+
+    <!-- Activity Results Display -->
+    <div class="results-display-section">
+      <div class="results-header">
+        <h3>📊 Recent Activity Planning Results</h3>
+        <button type="button" class="btn btn-secondary" onclick="refreshResults()">
+          <span class="btn-icon">🔄</span>
+          Refresh Results
+        </button>
+      </div>
+      
+      <div id="results-container" class="results-container">
+        <div class="loading-indicator">
+          <span class="loading-icon">⏳</span>
+          Loading recent results...
+        </div>
+      </div>
+    </div>
+
     <!-- Example Queries -->
     <div class="examples-card">
       <h3>💡 Example Queries</h3>
@@ -306,6 +392,234 @@ function showNotification(message, type) {
   }, 5000);
 }
 
+// Results display functions
+async function loadRecentResults() {
+  try {
+    const response = await fetch('/admin/activity-planner/results');
+    const data = await response.json();
+    displayResults(data);
+  } catch (error) {
+    console.error('Error loading results:', error);
+    showResultsError('Failed to load recent results');
+  }
+}
+
+function displayResults(data) {
+  const container = document.getElementById('results-container');
+  
+  if (!data.recentPlans || data.recentPlans.length === 0) {
+    container.innerHTML = `
+      <div class="no-results">
+        <span class="no-results-icon">📭</span>
+        <p>No recent activity planning results found.</p>
+        <p>Start a new planning session to see results here.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  const resultsHtml = data.recentPlans.map(plan => `
+    <div class="result-card" data-plan-id="${plan.id}">
+      <div class="result-header">
+        <div class="result-info">
+          <h4 class="result-query">${plan.query}</h4>
+          <div class="result-meta">
+            <span class="result-age">👶 Age: ${plan.childAge}</span>
+            <span class="result-location">📍 ${plan.location}</span>
+            <span class="result-type">🎯 ${plan.activityType}</span>
+          </div>
+        </div>
+        <div class="result-status">
+          <span class="status-badge status-${plan.status}">${plan.status}</span>
+          <span class="result-count">${plan.resultsCount} results</span>
+        </div>
+      </div>
+      
+      <div class="result-summary">
+        <p>${plan.summary}</p>
+      </div>
+      
+      <div class="result-footer">
+        <span class="result-timestamp">🕒 ${plan.timestamp}</span>
+        <button class="btn btn-outline btn-sm" onclick="viewDetailedResults('${plan.id}')">
+          <span class="btn-icon">👁️</span>
+          View Details
+        </button>
+      </div>
+    </div>
+  `).join('');
+  
+  container.innerHTML = `
+    <div class="results-grid">
+      ${resultsHtml}
+    </div>
+    <div class="results-footer">
+      <p class="results-summary">
+        📊 Showing ${data.recentPlans.length} recent planning sessions | 
+        Last updated: ${data.lastUpdated}
+      </p>
+    </div>
+  `;
+}
+
+async function viewDetailedResults(planId) {
+  try {
+    const response = await fetch(`/admin/activity-planner/results/${planId}`);
+    const data = await response.json();
+    showDetailedResultsModal(data);
+  } catch (error) {
+    console.error('Error loading detailed results:', error);
+    showNotification('❌ Failed to load detailed results', 'error');
+  }
+}
+
+function showDetailedResultsModal(data) {
+  if (!data.activities) {
+    showNotification('❌ No detailed results available', 'error');
+    return;
+  }
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.innerHTML = `
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h3>🎯 Activity Planning Results</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="plan-info">
+          <h4>${data.query}</h4>
+          <div class="plan-meta">
+            <span class="plan-age">👶 Age: ${data.childAge}</span>
+            <span class="plan-location">📍 ${data.location}</span>
+            <span class="plan-type">🎯 ${data.activityType}</span>
+            <span class="plan-timestamp">🕒 ${data.timestamp}</span>
+          </div>
+        </div>
+        
+        <div class="plan-summary">
+          <p><strong>Summary:</strong> ${data.summary}</p>
+        </div>
+        
+        <div class="activities-section">
+          <h4>🎪 Recommended Activities</h4>
+          <div class="activities-grid">
+            ${data.activities.map(activity => `
+              <div class="activity-card">
+                <div class="activity-header">
+                  <h5>${activity.name}</h5>
+                  <div class="activity-type">${activity.type}</div>
+                </div>
+                
+                <div class="activity-details">
+                  <p class="activity-description">${activity.description}</p>
+                  
+                  <div class="activity-meta">
+                    <div class="meta-item">
+                      <span class="meta-label">👶 Age Range:</span>
+                      <span class="meta-value">${activity.ageRange}</span>
+                    </div>
+                    <div class="meta-item">
+                      <span class="meta-label">📍 Location:</span>
+                      <span class="meta-value">${activity.location}</span>
+                    </div>
+                    <div class="meta-item">
+                      <span class="meta-label">💰 Price:</span>
+                      <span class="meta-value">${activity.price}</span>
+                    </div>
+                    <div class="meta-item">
+                      <span class="meta-label">⏱️ Duration:</span>
+                      <span class="meta-value">${activity.duration}</span>
+                    </div>
+                    <div class="meta-item">
+                      <span class="meta-label">⭐ Rating:</span>
+                      <span class="meta-value">${activity.rating}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="activity-highlights">
+                    <div class="highlight-item">
+                      <span class="highlight-label">🛡️ Safety:</span>
+                      <span class="highlight-value">${activity.safety}</span>
+                    </div>
+                    <div class="highlight-item">
+                      <span class="highlight-label">🎓 Educational Value:</span>
+                      <span class="highlight-value">${activity.educationalValue}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="activity-actions">
+                    <a href="${activity.url}" target="_blank" class="btn btn-primary btn-sm">
+                      <span class="btn-icon">🌐</span>
+                      Visit Website
+                    </a>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        ${data.recommendations ? `
+          <div class="recommendations-section">
+            <h4>💡 AI Recommendations</h4>
+            <ul class="recommendations-list">
+              ${data.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Close modal when clicking outside
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+}
+
+function closeModal() {
+  const modal = document.querySelector('.modal-overlay');
+  if (modal) {
+    modal.remove();
+  }
+}
+
+function refreshResults() {
+  const button = event.target.closest('button');
+  button.disabled = true;
+  button.innerHTML = '<span class="btn-icon">⏳</span> Refreshing...';
+  
+  loadRecentResults().finally(() => {
+    button.disabled = false;
+    button.innerHTML = '<span class="btn-icon">🔄</span> Refresh Results';
+  });
+}
+
+function showResultsError(message) {
+  const container = document.getElementById('results-container');
+  container.innerHTML = `
+    <div class="results-error">
+      <span class="error-icon">❌</span>
+      <p>${message}</p>
+      <button class="btn btn-secondary btn-sm" onclick="loadRecentResults()">
+        <span class="btn-icon">🔄</span>
+        Try Again
+      </button>
+    </div>
+  `;
+}
+
 // Auto-refresh status every 30 seconds
 setInterval(() => {
   fetch('/admin/activity-planner/status')
@@ -316,6 +630,103 @@ setInterval(() => {
     })
     .catch(error => console.error('Status check failed:', error));
 }, 30000);
+
+// Create new planning session functions
+async function createPlanningSession() {
+  const query = document.getElementById('query-input').value.trim();
+  const childAge = document.getElementById('child-age').value;
+  const location = document.getElementById('location').value.trim();
+  const activityType = document.getElementById('activity-type').value;
+  
+  if (!query || !childAge || !location || !activityType) {
+    showNotification('❌ Please fill in all fields', 'error');
+    return;
+  }
+  
+  const button = event.target.closest('button');
+  button.disabled = true;
+  button.innerHTML = '<span class="btn-icon">⏳</span> Creating...';
+  
+  try {
+    const response = await fetch('/admin/activity-planner/create-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `query=${encodeURIComponent(query)}&childAge=${encodeURIComponent(childAge)}&location=${encodeURIComponent(location)}&activityType=${encodeURIComponent(activityType)}`
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showNotification('✅ New planning session created successfully!', 'success');
+      // Clear form
+      document.getElementById('query-input').value = '';
+      document.getElementById('child-age').value = '';
+      document.getElementById('location').value = '';
+      document.getElementById('activity-type').value = '';
+      // Refresh results to show the new session
+      loadRecentResults();
+    } else {
+      showNotification('❌ Failed to create planning session: ' + result.error, 'error');
+    }
+  } catch (error) {
+    showNotification('❌ Error: ' + error.message, 'error');
+  } finally {
+    button.disabled = false;
+    button.innerHTML = '<span class="btn-icon">🚀</span> Create Planning Session';
+  }
+}
+
+async function loadExampleQueries() {
+  const button = event.target.closest('button');
+  button.disabled = true;
+  button.innerHTML = '<span class="btn-icon">⏳</span> Loading...';
+  
+  try {
+    const response = await fetch('/admin/activity-planner/example-queries');
+    const examples = await response.json();
+    
+    const examplesContainer = document.getElementById('example-queries');
+    const examplesList = document.getElementById('example-queries-list');
+    
+    const examplesHtml = examples.map(example => `
+      <div class="example-query-item" onclick="useExampleQuery('${example.query}', '${example.childAge}', '${example.location}', '${example.activityType}')">
+        <div class="example-query-text">${example.query}</div>
+        <div class="example-query-meta">
+          <span class="example-age">👶 ${example.childAge} years</span>
+          <span class="example-location">📍 ${example.location}</span>
+          <span class="example-type">🎯 ${example.activityType}</span>
+        </div>
+      </div>
+    `).join('');
+    
+    examplesList.innerHTML = examplesHtml;
+    examplesContainer.style.display = 'block';
+    
+    showNotification('✅ Example queries loaded!', 'success');
+  } catch (error) {
+    showNotification('❌ Error loading examples: ' + error.message, 'error');
+  } finally {
+    button.disabled = false;
+    button.innerHTML = '<span class="btn-icon">💡</span> Load Examples';
+  }
+}
+
+function useExampleQuery(query, childAge, location, activityType) {
+  document.getElementById('query-input').value = query;
+  document.getElementById('child-age').value = childAge;
+  document.getElementById('location').value = location;
+  document.getElementById('activity-type').value = activityType;
+  
+  // Hide examples section
+  document.getElementById('example-queries').style.display = 'none';
+  
+  showNotification('✅ Example query loaded into form!', 'success');
+}
+
+// Load results on page load
+document.addEventListener('DOMContentLoaded', () => {
+  loadRecentResults();
+});
 </script>
 </body>
 </html>

@@ -2,6 +2,7 @@ package com.superm.community.controller;
 
 import com.superm.community.service.StaticDataService;
 import com.superm.community.service.ActivityPlannerService;
+import com.superm.community.service.OpenAIService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +15,12 @@ import java.util.HashMap;
 public class AdminController {
 	private final StaticDataService data;
 	private final ActivityPlannerService activityPlannerService;
-	
-	public AdminController(StaticDataService data, ActivityPlannerService activityPlannerService) { 
+	private final OpenAIService openAIService;
+
+	public AdminController(StaticDataService data, ActivityPlannerService activityPlannerService, OpenAIService openAIService) {
 		this.data = data;
 		this.activityPlannerService = activityPlannerService;
+		this.openAIService = openAIService;
 	}
 
 	@GetMapping("/admin")
@@ -213,6 +216,10 @@ public String processPayouts(@RequestParam("dollars") int dollars,
 		model.addAttribute("socialPlatforms", data.getSocialMediaPlatforms());
 		model.addAttribute("contentTemplates", data.getContentTemplates());
 		model.addAttribute("recentContent", data.getRecentGeneratedContent());
+		
+		// Add OpenAI API status
+		model.addAttribute("openaiStatus", openAIService.getApiStatus());
+		
 		return "admin-content-generator";
 	}
 
@@ -222,12 +229,24 @@ public String processPayouts(@RequestParam("dollars") int dollars,
 								 @RequestParam("communityId") String communityId,
 								 @RequestParam(value = "aiTool", defaultValue = "chatgpt") String aiTool,
 								 Model model) {
-		var generatedContent = data.generateContent(contentType, topic, communityId, aiTool);
+		
+		Map<String, Object> generatedContent;
+		
+		// Use real ChatGPT API if configured and selected, otherwise fallback to mock data
+		if ("chatgpt".equalsIgnoreCase(aiTool) && openAIService.isApiConfigured()) {
+			generatedContent = openAIService.generateContent(contentType, topic, communityId, aiTool);
+		} else {
+			// Fallback to mock data generation
+			generatedContent = data.generateContent(contentType, topic, communityId, aiTool);
+		}
+		
 		model.addAttribute("generatedContent", generatedContent);
 		model.addAttribute("communities", data.getAllCommunities());
 		model.addAttribute("socialPlatforms", data.getSocialMediaPlatforms());
 		model.addAttribute("contentTemplates", data.getContentTemplates());
 		model.addAttribute("recentContent", data.getRecentGeneratedContent());
+		model.addAttribute("openaiStatus", openAIService.getApiStatus());
+		
 		return "admin-content-generator";
 	}
 
@@ -309,5 +328,52 @@ public String processPayouts(@RequestParam("dollars") int dollars,
 	@ResponseBody
 	public Map<String, Object> getActivityPlannerStatus() {
 		return activityPlannerService.getServiceStatus();
+	}
+	
+	@GetMapping("/admin/activity-planner/debug")
+	@ResponseBody
+	public Map<String, Object> debugEnvironment() {
+		Map<String, Object> debug = new HashMap<>();
+		debug.put("OPENAI_API_KEY_from_env", System.getenv("OPENAI_API_KEY") != null ? "configured" : "not found");
+		debug.put("TAVILY_API_KEY_from_env", System.getenv("TAVILY_API_KEY") != null ? "configured" : "not found");
+		debug.put("all_env_vars", System.getenv().keySet().stream().filter(k -> k.contains("API")).collect(java.util.stream.Collectors.toList()));
+		return debug;
+	}
+	
+	@GetMapping("/admin/activity-planner/results")
+	@ResponseBody
+	public Map<String, Object> getRecentResults() {
+		return activityPlannerService.getRecentResults();
+	}
+	
+	@GetMapping("/admin/activity-planner/results/{planId}")
+	@ResponseBody
+	public Map<String, Object> getDetailedResults(@PathVariable("planId") String planId) {
+		return activityPlannerService.getDetailedResults(planId);
+	}
+	
+	@PostMapping("/admin/activity-planner/create-session")
+	@ResponseBody
+	public Map<String, Object> createPlanningSession(@RequestParam("query") String query,
+													@RequestParam("childAge") String childAge,
+													@RequestParam("location") String location,
+													@RequestParam("activityType") String activityType) {
+		Map<String, Object> response = new HashMap<>();
+		try {
+			Map<String, Object> newPlan = activityPlannerService.createNewPlanningSession(query, childAge, location, activityType);
+			response.put("success", true);
+			response.put("plan", newPlan);
+			response.put("message", "New planning session created successfully");
+		} catch (Exception e) {
+			response.put("success", false);
+			response.put("error", e.getMessage());
+		}
+		return response;
+	}
+	
+	@GetMapping("/admin/activity-planner/example-queries")
+	@ResponseBody
+	public List<Map<String, Object>> getExampleQueries() {
+		return activityPlannerService.getExampleQueries();
 	}
 }

@@ -13,6 +13,16 @@
     </nav>
     <h1>🤖 AI Content Generator</h1>
     <p class="content-subtitle">Generate articles, videos, and photos with AI and post to social media</p>
+    
+    <!-- API Status -->
+    <div class="api-status" th:if="${openaiStatus}">
+      <div class="status-indicator" th:classappend="${openaiStatus.configured} ? 'status-ready' : 'status-error'">
+        <span th:if="${openaiStatus.configured}" class="status-icon">✅</span>
+        <span th:unless="${openaiStatus.configured}" class="status-icon">⚠️</span>
+        <span class="status-text" th:text="${openaiStatus.status}">Status</span>
+      </div>
+      <p class="status-message" th:text="${openaiStatus.message}">Status message</p>
+    </div>
   </header>
 
   <!-- Success Messages -->
