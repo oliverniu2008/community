@@ -1,14 +1,24 @@
 package com.superm.community.controller;
 
 import com.superm.community.service.StaticDataService;
+import com.superm.community.service.ActivityPlannerService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+
 @Controller
 public class AdminController {
 	private final StaticDataService data;
-	public AdminController(StaticDataService data) { this.data = data; }
+	private final ActivityPlannerService activityPlannerService;
+	
+	public AdminController(StaticDataService data, ActivityPlannerService activityPlannerService) { 
+		this.data = data;
+		this.activityPlannerService = activityPlannerService;
+	}
 
 	@GetMapping("/admin")
 	public String dashboard(Model model) {
@@ -251,5 +261,53 @@ public String processPayouts(@RequestParam("dollars") int dollars,
 		model.addAttribute("contentTemplates", data.getContentTemplates());
 		model.addAttribute("recentContent", data.getRecentGeneratedContent());
 		return "admin-content-generator";
+	}
+	
+	// Activity Planner AI Agent endpoints
+	@GetMapping("/admin/activity-planner")
+	public String activityPlanner(Model model) {
+		Map<String, Object> serviceStatus = activityPlannerService.getServiceStatus();
+		Map<String, Object> documentation = activityPlannerService.getServiceDocumentation();
+		
+		model.addAttribute("serviceStatus", serviceStatus);
+		model.addAttribute("documentation", documentation);
+		return "admin-activity-planner";
+	}
+	
+	@PostMapping("/admin/activity-planner/start")
+	@ResponseBody
+	public Map<String, Object> startActivityPlanner() {
+		Map<String, Object> response = new HashMap<>();
+		try {
+			String serviceUrl = activityPlannerService.startActivityPlannerService();
+			response.put("success", true);
+			response.put("message", "Activity Planner service started successfully");
+			response.put("serviceUrl", serviceUrl);
+		} catch (Exception e) {
+			response.put("success", false);
+			response.put("error", e.getMessage());
+		}
+		return response;
+	}
+	
+	@PostMapping("/admin/activity-planner/stop")
+	@ResponseBody
+	public Map<String, Object> stopActivityPlanner() {
+		Map<String, Object> response = new HashMap<>();
+		try {
+			String result = activityPlannerService.stopActivityPlannerService();
+			response.put("success", true);
+			response.put("message", result);
+		} catch (Exception e) {
+			response.put("success", false);
+			response.put("error", e.getMessage());
+		}
+		return response;
+	}
+	
+	@GetMapping("/admin/activity-planner/status")
+	@ResponseBody
+	public Map<String, Object> getActivityPlannerStatus() {
+		return activityPlannerService.getServiceStatus();
 	}
 }

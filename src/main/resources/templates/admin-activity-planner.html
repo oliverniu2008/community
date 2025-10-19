@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Activity Planner AI Agent - Admin</title>
+  <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body class="admin-theme">
+<div class="admin-container">
+  <header class="admin-header">
+    <h1>🎯 Activity Planner AI Agent</h1>
+    <nav class="admin-nav">
+      <a href="/admin/users" class="nav-tab">
+        <span class="nav-icon">👥</span>
+        <span class="nav-text">Users</span>
+      </a>
+      <a href="/admin/communities" class="nav-tab">
+        <span class="nav-icon">🏘️</span>
+        <span class="nav-text">Communities</span>
+      </a>
+      <a href="/admin/leaders" class="nav-tab">
+        <span class="nav-icon">⭐</span>
+        <span class="nav-text">Leaders & Rewards</span>
+      </a>
+      <a href="/admin/moderation" class="nav-tab">
+        <span class="nav-icon">🛡️</span>
+        <span class="nav-text">Moderation</span>
+      </a>
+      <a href="/admin/analytics" class="nav-tab">
+        <span class="nav-icon">📊</span>
+        <span class="nav-text">Analytics</span>
+      </a>
+      <a href="/admin/content-generator" class="nav-tab">
+        <span class="nav-icon">🤖</span>
+        <span class="nav-text">Content Generator</span>
+      </a>
+      <a href="/admin/activity-planner" class="nav-tab active">
+        <span class="nav-icon">🎯</span>
+        <span class="nav-text">Activity Planner</span>
+      </a>
+    </nav>
+  </header>
+
+  <section class="activity-planner-console">
+    <div class="console-header">
+      <h2>🤖 Multi-Step Activity Planner AI Agent</h2>
+      <p>Powered by GPT-4o with LangChain | Real-time web search & intelligent planning</p>
+    </div>
+    
+    <!-- Service Status -->
+    <div class="service-status-card">
+      <div class="status-header">
+        <h3>📊 Service Status</h3>
+        <button type="button" class="btn btn-secondary" onclick="refreshStatus()">
+          <span class="btn-icon">🔄</span>
+          Refresh
+        </button>
+      </div>
+      
+      <div class="status-grid">
+        <div class="status-item">
+          <div class="status-label">OpenAI API</div>
+          <div class="status-value" th:classappend="${serviceStatus.openaiConfigured} ? 'status-success' : 'status-error'">
+            <span th:if="${serviceStatus.openaiConfigured}">✅ Configured</span>
+            <span th:unless="${serviceStatus.openaiConfigured}">❌ Not Configured</span>
+          </div>
+        </div>
+        
+        <div class="status-item">
+          <div class="status-label">Tavily API</div>
+          <div class="status-value" th:classappend="${serviceStatus.tavilyConfigured} ? 'status-success' : 'status-error'">
+            <span th:if="${serviceStatus.tavilyConfigured}">✅ Configured</span>
+            <span th:unless="${serviceStatus.tavilyConfigured}">❌ Not Configured</span>
+          </div>
+        </div>
+        
+        <div class="status-item">
+          <div class="status-label">Streamlit Service</div>
+          <div class="status-value" th:classappend="${serviceStatus.streamlitRunning} ? 'status-success' : 'status-warning'">
+            <span th:if="${serviceStatus.streamlitRunning}">🟢 Running</span>
+            <span th:unless="${serviceStatus.streamlitRunning}">🟡 Stopped</span>
+          </div>
+        </div>
+        
+        <div class="status-item">
+          <div class="status-label">Service URL</div>
+          <div class="status-value status-info">
+            <a th:href="${serviceStatus.serviceUrl}" th:text="${serviceStatus.serviceUrl}" target="_blank">Service URL</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Controls -->
+    <div class="service-controls">
+      <h3>🎮 Service Controls</h3>
+      <div class="control-buttons">
+        <button type="button" class="btn btn-primary btn-large" onclick="startService()">
+          <span class="btn-icon">🚀</span>
+          Start Activity Planner Service
+        </button>
+        <button type="button" class="btn btn-secondary btn-large" onclick="stopService()">
+          <span class="btn-icon">⏹️</span>
+          Stop Service
+        </button>
+        <button type="button" class="btn btn-outline btn-large" onclick="openService()" th:disabled="${!serviceStatus.streamlitRunning}">
+          <span class="btn-icon">🌐</span>
+          Open Streamlit App
+        </button>
+      </div>
+    </div>
+
+    <!-- Service Documentation -->
+    <div class="documentation-card">
+      <h3>📚 Service Documentation</h3>
+      
+      <div class="doc-section">
+        <h4>🤖 AI Agent Details</h4>
+        <div class="doc-content">
+          <p><strong>Name:</strong> <span th:text="${documentation.name}">Service Name</span></p>
+          <p><strong>Description:</strong> <span th:text="${documentation.description}">Service Description</span></p>
+          <p><strong>Model:</strong> <span th:text="${documentation.model}">GPT-4o</span></p>
+        </div>
+      </div>
+      
+      <div class="doc-section">
+        <h4>🛠️ Available Tools</h4>
+        <div class="tools-grid">
+          <div class="tool-card" th:each="tool : ${documentation.tools}">
+            <div class="tool-icon">🔧</div>
+            <div class="tool-name" th:text="${tool}">Tool Name</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="doc-section">
+        <h4>✨ Key Features</h4>
+        <ul class="features-list">
+          <li th:each="feature : ${documentation.features}" th:text="${feature}">Feature</li>
+        </ul>
+      </div>
+      
+      <div class="doc-section">
+        <h4>⚙️ Setup Requirements</h4>
+        <div class="setup-info">
+          <div class="setup-item">
+            <strong>OpenAI API Key:</strong> <span th:text="${documentation.setup.openaiKey}">Setup instruction</span>
+          </div>
+          <div class="setup-item">
+            <strong>Tavily API Key:</strong> <span th:text="${documentation.setup.tavilyKey}">Setup instruction</span>
+          </div>
+          <div class="setup-item">
+            <strong>Dependencies:</strong>
+            <ul>
+              <li th:each="dep : ${documentation.setup.dependencies}" th:text="${dep}">Dependency</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multi-Step Process Explanation -->
+    <div class="process-explanation">
+      <h3>🔄 Multi-Step Process Flow</h3>
+      <div class="process-steps">
+        <div class="step-item">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h4>Planning Validation</h4>
+            <p>PlanningTool validates the request and confirms readiness for activity search</p>
+          </div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-item">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h4>Real-time Search</h4>
+            <p>TavilySearchTool searches for specific local activities in the specified location</p>
+          </div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step-item">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h4>Comprehensive Response</h4>
+            <p>AI combines planning insights with search results for personalized recommendations</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Example Queries -->
+    <div class="examples-card">
+      <h3>💡 Example Queries</h3>
+      <div class="examples-grid">
+        <div class="example-item">
+          <div class="example-query">"Find indoor activities for my 3-year-old in Singapore"</div>
+          <div class="example-description">Multi-step planning with local search</div>
+        </div>
+        <div class="example-item">
+          <div class="example-query">"What are educational activities for a 5-year-old in Tokyo?"</div>
+          <div class="example-description">Age-appropriate educational focus</div>
+        </div>
+        <div class="example-item">
+          <div class="example-query">"Looking for outdoor activities for toddlers in London"</div>
+          <div class="example-description">Weather and location considerations</div>
+        </div>
+        <div class="example-item">
+          <div class="example-query">"Suggest age-appropriate activities for my 4-year-old in New York"</div>
+          <div class="example-description">Comprehensive age and location analysis</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+// Service control functions
+async function startService() {
+  const button = event.target.closest('button');
+  button.disabled = true;
+  button.innerHTML = '<span class="btn-icon">⏳</span> Starting...';
+  
+  try {
+    const response = await fetch('/admin/activity-planner/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showNotification('✅ Service started successfully!', 'success');
+      setTimeout(() => location.reload(), 2000);
+    } else {
+      showNotification('❌ Failed to start service: ' + result.error, 'error');
+    }
+  } catch (error) {
+    showNotification('❌ Error: ' + error.message, 'error');
+  } finally {
+    button.disabled = false;
+    button.innerHTML = '<span class="btn-icon">🚀</span> Start Activity Planner Service';
+  }
+}
+
+async function stopService() {
+  const button = event.target.closest('button');
+  button.disabled = true;
+  button.innerHTML = '<span class="btn-icon">⏳</span> Stopping...';
+  
+  try {
+    const response = await fetch('/admin/activity-planner/stop', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      showNotification('✅ Service stopped successfully!', 'success');
+      setTimeout(() => location.reload(), 2000);
+    } else {
+      showNotification('❌ Failed to stop service: ' + result.error, 'error');
+    }
+  } catch (error) {
+    showNotification('❌ Error: ' + error.message, 'error');
+  } finally {
+    button.disabled = false;
+    button.innerHTML = '<span class="btn-icon">⏹️</span> Stop Service';
+  }
+}
+
+async function refreshStatus() {
+  const button = event.target.closest('button');
+  button.disabled = true;
+  button.innerHTML = '<span class="btn-icon">⏳</span> Refreshing...';
+  
+  try {
+    const response = await fetch('/admin/activity-planner/status');
+    const status = await response.json();
+    
+    showNotification('✅ Status refreshed!', 'success');
+    setTimeout(() => location.reload(), 1000);
+  } catch (error) {
+    showNotification('❌ Error refreshing status: ' + error.message, 'error');
+  } finally {
+    button.disabled = false;
+    button.innerHTML = '<span class="btn-icon">🔄</span> Refresh';
+  }
+}
+
+function openService() {
+  const serviceUrl = document.querySelector('.status-info a').href;
+  window.open(serviceUrl, '_blank');
+}
+
+function showNotification(message, type) {
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.remove();
+  }, 5000);
+}
+
+// Auto-refresh status every 30 seconds
+setInterval(() => {
+  fetch('/admin/activity-planner/status')
+    .then(response => response.json())
+    .then(status => {
+      // Update status indicators without full page reload
+      console.log('Status updated:', status);
+    })
+    .catch(error => console.error('Status check failed:', error));
+}, 30000);
+</script>
+</body>
+</html>
