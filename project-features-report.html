@@ -319,6 +319,62 @@
             text-decoration: underline;
         }
 
+        /* Progress Bars Styles */
+        .progress-bars {
+            padding: 20px 0;
+        }
+
+        .progress-item {
+            margin-bottom: 20px;
+        }
+
+        .progress-label {
+            font-size: 0.9rem;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease-in-out;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-value {
+            font-size: 0.8rem;
+            color: #667eea;
+            font-weight: bold;
+            margin-top: 5px;
+            text-align: right;
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2rem;
@@ -378,7 +434,7 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">🔧</div>
-                    <div class="stat-number">1,329</div>
+                    <div class="stat-number">15,328</div>
                     <div class="stat-label">Lines of Code</div>
                 </div>
             </div>
@@ -620,7 +676,43 @@
                 
                 <div class="chart-container">
                     <h3 style="text-align: center; margin-bottom: 20px; color: #4a5568;">Development Progress</h3>
-                    <canvas id="progressChart"></canvas>
+                    <div class="progress-bars">
+                        <div class="progress-item">
+                            <div class="progress-label">Phase 1 - Foundation</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 20%; background: #667eea;"></div>
+                            </div>
+                            <div class="progress-value">20%</div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">Phase 2 - User Experience</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 45%; background: #764ba2;"></div>
+                            </div>
+                            <div class="progress-value">45%</div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">Phase 3 - AI Integration</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 70%; background: #f093fb;"></div>
+                            </div>
+                            <div class="progress-value">70%</div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">Phase 4 - Advanced Features</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 85%; background: #f5576c;"></div>
+                            </div>
+                            <div class="progress-value">85%</div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">Phase 5 - Production Ready</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 100%; background: #4facfe;"></div>
+                            </div>
+                            <div class="progress-value">100%</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -670,42 +762,14 @@
             }
         });
 
-        // Development Progress Chart
-        const progressCtx = document.getElementById('progressChart').getContext('2d');
-        new Chart(progressCtx, {
-            type: 'line',
-            data: {
-                labels: ['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4', 'Phase 5'],
-                datasets: [{
-                    label: 'Features Completed',
-                    data: [20, 45, 70, 85, 100],
-                    borderColor: '#667eea',
-                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: function(value) {
-                                return value + '%';
-                            }
-                        }
-                    }
-                }
-            }
+        // Progress bars animation - much faster loading
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressFills = document.querySelectorAll('.progress-fill');
+            progressFills.forEach((fill, index) => {
+                setTimeout(() => {
+                    fill.style.width = fill.style.width; // Trigger animation
+                }, index * 200);
+            });
         });
     </script>
 </body>
