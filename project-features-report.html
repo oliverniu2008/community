@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Community Prototype - Features & Milestones Report</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -281,18 +280,63 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
-        .charts-grid {
+        .analytics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 30px;
             margin-top: 20px;
         }
 
-        .chart-container {
+        .analytics-card {
             background: rgba(255, 255, 255, 0.8);
             border-radius: 15px;
             padding: 20px;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Feature Stats Styles */
+        .feature-stats {
+            padding: 10px 0;
+        }
+
+        .feature-stat {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .feature-stat:hover {
+            transform: translateX(5px);
+        }
+
+        .feature-stat .feature-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .feature-info {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .feature-name {
+            font-weight: 500;
+            color: #4a5568;
+            font-size: 1rem;
+        }
+
+        .feature-percentage {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1rem;
         }
 
         .footer {
@@ -661,20 +705,56 @@
             </div>
         </div>
 
-        <!-- Charts Section -->
+        <!-- Analytics Section -->
         <div class="charts-section">
             <h2 class="section-title">
                 <span>📈</span>
                 Project Analytics
             </h2>
             
-            <div class="charts-grid">
-                <div class="chart-container">
+            <div class="analytics-grid">
+                <div class="analytics-card">
                     <h3 style="text-align: center; margin-bottom: 20px; color: #4a5568;">Feature Distribution</h3>
-                    <canvas id="featureChart"></canvas>
+                    <div class="feature-stats">
+                        <div class="feature-stat">
+                            <div class="feature-icon">🤖</div>
+                            <div class="feature-info">
+                                <div class="feature-name">AI Features</div>
+                                <div class="feature-percentage">35%</div>
+                            </div>
+                        </div>
+                        <div class="feature-stat">
+                            <div class="feature-icon">👥</div>
+                            <div class="feature-info">
+                                <div class="feature-name">User Management</div>
+                                <div class="feature-percentage">25%</div>
+                            </div>
+                        </div>
+                        <div class="feature-stat">
+                            <div class="feature-icon">📝</div>
+                            <div class="feature-info">
+                                <div class="feature-name">Content Management</div>
+                                <div class="feature-percentage">20%</div>
+                            </div>
+                        </div>
+                        <div class="feature-stat">
+                            <div class="feature-icon">📊</div>
+                            <div class="feature-info">
+                                <div class="feature-name">Analytics</div>
+                                <div class="feature-percentage">12%</div>
+                            </div>
+                        </div>
+                        <div class="feature-stat">
+                            <div class="feature-icon">⚙️</div>
+                            <div class="feature-info">
+                                <div class="feature-name">Admin Tools</div>
+                                <div class="feature-percentage">8%</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="chart-container">
+                <div class="analytics-card">
                     <h3 style="text-align: center; margin-bottom: 20px; color: #4a5568;">Development Progress</h3>
                     <div class="progress-bars">
                         <div class="progress-item">
@@ -729,46 +809,32 @@
         // Set current date
         document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
 
-        // Feature Distribution Chart
-        const featureCtx = document.getElementById('featureChart').getContext('2d');
-        new Chart(featureCtx, {
-            type: 'doughnut',
-            data: {
-                labels: ['AI Features', 'User Management', 'Content Management', 'Analytics', 'Admin Tools'],
-                datasets: [{
-                    data: [35, 25, 20, 12, 8],
-                    backgroundColor: [
-                        '#667eea',
-                        '#764ba2',
-                        '#f093fb',
-                        '#f5576c',
-                        '#4facfe'
-                    ],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            padding: 20,
-                            usePointStyle: true
-                        }
-                    }
-                }
-            }
-        });
-
-        // Progress bars animation - much faster loading
+        // Simple animations - no external dependencies needed
         document.addEventListener('DOMContentLoaded', function() {
+            // Animate progress bars
             const progressFills = document.querySelectorAll('.progress-fill');
             progressFills.forEach((fill, index) => {
                 setTimeout(() => {
                     fill.style.width = fill.style.width; // Trigger animation
                 }, index * 200);
+            });
+
+            // Animate feature stats on scroll
+            const featureStats = document.querySelectorAll('.feature-stat');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateX(0)';
+                    }
+                });
+            });
+
+            featureStats.forEach(stat => {
+                stat.style.opacity = '0';
+                stat.style.transform = 'translateX(-20px)';
+                stat.style.transition = 'all 0.5s ease';
+                observer.observe(stat);
             });
         });
     </script>
